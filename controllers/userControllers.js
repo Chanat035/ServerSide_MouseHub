@@ -4,18 +4,26 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const userRegistrationSchema = z.object({
-    name: z.string().min(3, "Username must have at least 3 characters"),
-    email: z.email("Invalid email address"),
-    phone: z.string().min(10, "Phone number must have at least 10 characters"),
-    address: z.string().min(5, "Address must have at least 5 characters"),
-    password: z.string().min(6, "Password must have at least 6 characters"),
-    confirmPassword: z.string()
-  });
+  name: z.string().min(3, "Username must have at least 3 characters"),
+  email: z.email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must have at least 10 characters"),
+  address: z.string().min(5, "Address must have at least 5 characters"),
+  password: z.string().min(6, "Password must have at least 6 characters"),
+  confirmPassword: z.string(),
+});
 
 const userLoginSchema = z.object({
   name: z.string(),
   password: z.string(),
 });
+
+const changePasswordSchema = z.object({
+  name: z.string(),
+  oldPassword: z.string(),
+  newPassword: z.string().min(6, "New password must have at least 6 characters"),
+  confirmPassword: z.string(),
+});
+
 
 const userController = {
   getAllUsers: async (req, res) => {
@@ -23,7 +31,7 @@ const userController = {
     res.status(200).json(users);
   },
 
-  create: async (req, res) => {
+  register: async (req, res) => {
     try {
       const { name, email, phone, address, password, confirmPassword } =
         req.body;
@@ -33,7 +41,7 @@ const userController = {
         });
       }
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await userService.create(
+      const user = await userService.register(
         name,
         email,
         phone,
@@ -80,7 +88,78 @@ const userController = {
         .json({ message: "Internal server error", error: error.message });
     }
   },
+
+  changePassword: async (req, res) => {
+    try {
+      const { name, oldPassword, newPassword, confirmPassword } = req.body;
+
+      const user = await userService.getUserByUsername(name);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+     const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({
+          message: "Old password is incorrect",
+        });
+      }
+
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+          message: "New password and confirm password do not match",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const changedPassword = await userService.changePassword(user, hashedPassword);
+      return res
+        .status(200)
+        .json({ message: "Password changed successfully.", user: changedPassword.password });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  addBalance: async (req, res) => {
+    try {
+      const { name, amount } = req.body;
+
+      const user = await userService.getUserByUsername(name);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      if (!Number.isFinite(Number(amount))) {
+        return res.status(400).json({
+          message: "Invalid amount format",
+        });
+      }
+
+      const updatedBalance = await userService.addBalance(user, amount);
+
+      return res.status(200).json({
+        message: "Balance updated successfully",
+        balance: updatedBalance.balance,
+      });
+    } catch (error) {
+      console.error("Error in addBalance:", error);
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
 };
 
-export { userLoginSchema, userRegistrationSchema };
+export { userLoginSchema, userRegistrationSchema, changePasswordSchema };
 export default userController;

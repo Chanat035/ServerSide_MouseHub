@@ -1,4 +1,4 @@
-import userController, {userLoginSchema, userRegistrationSchema, changePasswordSchema} from "../controllers/userControllers.js";
+import userController, {userLoginSchema, userRegistrationSchema, changePasswordSchema, deleteUserSchema} from "../controllers/userControllers.js";
 import validateData from "../middleware/validationMiddleware.js";
 
 const useUserRoute = async (router) => {
@@ -7,6 +7,8 @@ const useUserRoute = async (router) => {
   router.post('/login', validateData(userLoginSchema), userController.login)
   router.patch('/addBalance', userController.addBalance)
   router.patch('/changePassword',validateData(changePasswordSchema), userController.changePassword)
+  router.delete('/user',validateData(deleteUserSchema), userController.deleteUser)
+  router.patch('/restoreUser', userController.restoreUser)
 }
 
 export default useUserRoute

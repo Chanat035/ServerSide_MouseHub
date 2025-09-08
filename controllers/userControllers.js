@@ -20,10 +20,17 @@ const userLoginSchema = z.object({
 const changePasswordSchema = z.object({
   name: z.string(),
   oldPassword: z.string(),
-  newPassword: z.string().min(6, "New password must have at least 6 characters"),
+  newPassword: z
+    .string()
+    .min(6, "New password must have at least 6 characters"),
   confirmPassword: z.string(),
 });
 
+const deleteUserSchema = z.object({
+  name: z.string(),
+  password: z.string(),
+  confirmMessage: z.string()
+});
 
 const userController = {
   getAllUsers: async (req, res) => {
@@ -101,13 +108,12 @@ const userController = {
         });
       }
 
-     const isMatch = await bcrypt.compare(oldPassword, user.password);
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) {
         return res.status(400).json({
           message: "Old password is incorrect",
         });
       }
-
 
       if (newPassword !== confirmPassword) {
         return res.status(400).json({
@@ -116,10 +122,89 @@ const userController = {
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      const changedPassword = await userService.changePassword(user, hashedPassword);
+      const changedPassword = await userService.changePassword(
+        user,
+        hashedPassword
+      );
       return res
         .status(200)
-        .json({ message: "Password changed successfully.", user: changedPassword.password });
+        .json({
+          message: "Password changed successfully.",
+          user: changedPassword.password,
+        });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    try {
+      const { name, password, confirmMessage } = req.body;
+
+      const user = await userService.getUserByUsername(name);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({
+          message: "password is incorrect",
+        });
+      }
+
+      if (confirmMessage !== "Confirm") {
+        return res.status(400).json({
+          message: "Please type 'Confirm' to delete your account",
+        });
+      }
+
+      const deleteUser = await userService.deleteUser(user);
+      return res
+        .status(200)
+        .json({
+          message: "User deleted successfully",
+          deletedUser: deleteUser.isdeleted,
+        });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  restoreUser: async (req, res) => {
+    try {
+      const { name } = req.body;
+
+      const user = await userService.getUserByUsername(name);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      if (!user.isDeleted) {
+        return res.status(400).json({
+          message: "User is not deleted",
+        });
+      }
+
+      const restoreUser = await userService.restoreUser(user);
+      return res
+        .status(200)
+        .json({
+          message: "User restored successfully",
+          restoreUser: restoreUser.isdeleted,
+        });
     } catch (error) {
       return res.status(500).json({
         message: "Internal server error",
@@ -161,5 +246,5 @@ const userController = {
   },
 };
 
-export { userLoginSchema, userRegistrationSchema, changePasswordSchema };
+export { userLoginSchema, userRegistrationSchema, changePasswordSchema, deleteUserSchema };
 export default userController;

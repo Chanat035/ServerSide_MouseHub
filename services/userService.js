@@ -19,11 +19,22 @@ const userService = {
     user.password = newPassword;
     return await user.save();
   },
+  deleteUser: async (user) => {
+    user.isDeleted = new Date();
+    return await user.save();
+  },
+
+  restoreUser: async (user) => {
+    user.isDeleted = null;
+    return await user.save();
+  },
   
   addBalance: async (user, amount) => {
     user.balance = (user.balance || 0) + Number(amount);
     return await user.save();
   },
+
+  
 }
 
 export default userService

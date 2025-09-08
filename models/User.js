@@ -23,6 +23,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: 0
+  },
+  isDeleted: {
+    type: Date,
+    default: null
   }
 })
 

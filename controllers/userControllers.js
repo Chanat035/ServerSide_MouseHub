@@ -38,6 +38,35 @@ const userController = {
     res.status(200).json(users);
   },
 
+  profile: async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    const user = await userService.getUserByUsername(name);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res
+      .status(200)
+      .json({
+        username: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        balance: user.balance
+      });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+},
+
   register: async (req, res) => {
     try {
       const { name, email, phone, address, password, confirmPassword } =
@@ -47,6 +76,21 @@ const userController = {
           message: "Password not match",
         });
       }
+
+    const existingUser = await userService.getUserByUsername(name);
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Username is already registered",
+      });
+    }
+
+    const existingEmail = await userService.getUserByEmail(email);
+    if (existingEmail) {
+      return res.status(400).json({
+        message: "Email is already registered",
+      });
+    }
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await userService.register(
         name,

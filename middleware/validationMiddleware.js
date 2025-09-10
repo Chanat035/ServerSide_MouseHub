@@ -1,5 +1,3 @@
-import { ZodError } from "zod";
-
 function validateData(schema) {
   return (req, res, next) => {
     try {

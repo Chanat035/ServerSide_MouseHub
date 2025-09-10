@@ -15,6 +15,10 @@ const userService = {
     return await User.findOne({ name: username });
   },
 
+  getUserByEmail: async (email) => {
+  return await User.findOne({ email });
+  },
+
   changePassword: async (user, newPassword) => {
     user.password = newPassword;
     return await user.save();

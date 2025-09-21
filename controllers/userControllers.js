@@ -29,7 +29,7 @@ const changePasswordSchema = z.object({
 const deleteUserSchema = z.object({
   name: z.string(),
   password: z.string(),
-  confirmMessage: z.string()
+  confirmMessage: z.string(),
 });
 
 const userController = {
@@ -39,33 +39,31 @@ const userController = {
   },
 
   profile: async (req, res) => {
-  try {
-    const { name } = req.body;
+    try {
+      const { name } = req.body;
 
-    const user = await userService.getUserByUsername(name);
+      const user = await userService.getUserByUsername(name);
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
 
-    return res
-      .status(200)
-      .json({
+      return res.status(200).json({
         username: user.name,
         email: user.email,
         phone: user.phone,
         address: user.address,
-        balance: user.balance
+        balance: user.balance,
       });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-},
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
 
   register: async (req, res) => {
     try {
@@ -77,19 +75,19 @@ const userController = {
         });
       }
 
-    const existingUser = await userService.getUserByUsername(name);
-    if (existingUser) {
-      return res.status(400).json({
-        message: "Username is already registered",
-      });
-    }
+      const existingUser = await userService.getUserByUsername(name);
+      if (existingUser) {
+        return res.status(400).json({
+          message: "Username is already registered",
+        });
+      }
 
-    const existingEmail = await userService.getUserByEmail(email);
-    if (existingEmail) {
-      return res.status(400).json({
-        message: "Email is already registered",
-      });
-    }
+      const existingEmail = await userService.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({
+          message: "Email is already registered",
+        });
+      }
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await userService.register(
@@ -128,11 +126,34 @@ const userController = {
       }
 
       const jwt_secret = process.env.JWT_SECRET;
-      const payload = { username: user.name, userId: user.id };
+      const payload = { username: user.name, userId: user.id, role: user.role };
       const token = jwt.sign(payload, jwt_secret, { expiresIn: "7d" });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       return res
         .status(200)
         .json({ message: "User logged in successfully!", token });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Internal server error", error: error.message });
+    }
+  },
+
+  logout: async (req, res) => {
+    try {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+      return res.status(200).json({ message: "User logged out successfully!" });
     } catch (error) {
       return res
         .status(500)
@@ -170,12 +191,10 @@ const userController = {
         user,
         hashedPassword
       );
-      return res
-        .status(200)
-        .json({
-          message: "Password changed successfully.",
-          user: changedPassword.password,
-        });
+      return res.status(200).json({
+        message: "Password changed successfully.",
+        user: changedPassword.password,
+      });
     } catch (error) {
       return res.status(500).json({
         message: "Internal server error",
@@ -210,12 +229,10 @@ const userController = {
       }
 
       const deleteUser = await userService.deleteUser(user);
-      return res
-        .status(200)
-        .json({
-          message: "User deleted successfully",
-          deletedUser: deleteUser.isdeleted,
-        });
+      return res.status(200).json({
+        message: "User deleted successfully",
+        deletedUser: deleteUser.isdeleted,
+      });
     } catch (error) {
       return res.status(500).json({
         message: "Internal server error",
@@ -243,12 +260,10 @@ const userController = {
       }
 
       const restoreUser = await userService.restoreUser(user);
-      return res
-        .status(200)
-        .json({
-          message: "User restored successfully",
-          restoreUser: restoreUser.isdeleted,
-        });
+      return res.status(200).json({
+        message: "User restored successfully",
+        restoreUser: restoreUser.isdeleted,
+      });
     } catch (error) {
       return res.status(500).json({
         message: "Internal server error",
@@ -290,5 +305,10 @@ const userController = {
   },
 };
 
-export { userLoginSchema, userRegistrationSchema, changePasswordSchema, deleteUserSchema };
+export {
+  userLoginSchema,
+  userRegistrationSchema,
+  changePasswordSchema,
+  deleteUserSchema,
+};
 export default userController;

@@ -4,34 +4,38 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   phone: {
-    type: String
+    type: String,
   },
   address: {
-    type: String
+    type: String,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   balance: {
     type: Number,
     default: 0,
-    min: 0
+    min: 0,
   },
   isDeleted: {
     type: Date,
-    default: null
-  }
-})
+    default: null,
+  },
+  role: {
+    type: String,
+    default: "user",
+  },
+});
 
 const User = mongoose.model("User", UserSchema);
 
-export default User
+export default User;

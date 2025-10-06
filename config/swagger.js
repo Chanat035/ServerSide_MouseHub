@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Product & User API",
-      version: "1.0.0",
-      description: "API for managing products and users",
+      title: "Product, User, Order & Payment API",
+      version: "1.1.0",
+      description: "API for managing products, users, orders, and payments",
     },
     servers: [
       {
@@ -43,6 +43,7 @@ const options = {
             isDeleted: { type: "string", format: "date-time", nullable: true },
           },
         },
+
         ProductInput: {
           type: "object",
           required: ["name", "price"],
@@ -59,11 +60,12 @@ const options = {
             },
           },
         },
+
         User: {
           type: "object",
           properties: {
-            _id: { type: "string", example: "650f1a2b3c4d5e6f7a8b9c0d" },
-            name: { type: "string", example: "john_doe" },
+            _id: { type: "string", example: "68cd7e2cb03c39fc44bd3803" },
+            name: { type: "string", example: "johndoe" },
             email: { type: "string", example: "john@example.com" },
             phone: { type: "string", example: "0812345678" },
             address: { type: "string", example: "123 Bangkok, Thailand" },
@@ -72,6 +74,7 @@ const options = {
             isDeleted: { type: "string", format: "date-time", nullable: true },
           },
         },
+
         UserInput: {
           type: "object",
           required: ["name", "email", "password"],
@@ -83,6 +86,83 @@ const options = {
             password: { type: "string", example: "P@ssw0rd!" },
           },
         },
+
+        Order: {
+          type: "object",
+          properties: {
+            _id: { type: "string", example: "66fcf09bb5e92d50d3b726c2" },
+            userId: { type: "string", example: "66fcf09bb5e92d50d3b726a1" },
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  productId: {
+                    type: "string",
+                    example: "66fbe5dc20bfa2e1a0c9d321",
+                  },
+                  quantity: { type: "integer", example: 2 },
+                },
+              },
+            },
+            totalPrice: { type: "number", example: 420 },
+            status: { type: "string", example: "pending" },
+            paymentStatus: { type: "string", example: "unpaid" },
+            shippingAddress: {
+              type: "string",
+              example: "123 หมู่ 2 แขวงลาดกระบัง กรุงเทพฯ",
+            },
+            createdAt: { type: "string", format: "date-time" },
+          },
+        },
+
+        OrderInput: {
+          type: "object",
+          required: ["shippingAddress"],
+          properties: {
+            shippingAddress: {
+              type: "string",
+              example: "99 ถนนจรัญสนิทวงศ์ เขตบางพลัด กรุงเทพฯ",
+            },
+          },
+        },
+
+        PaymentRequest: {
+          type: "object",
+          required: ["id", "shippingAddress"],
+          properties: {
+            id: {
+              type: "string",
+              example: "66fcf09bb5e92d50d3b726a1",
+            },
+            shippingAddress: {
+              type: "string",
+              example: "55 ซอยสุขุมวิท 77 เขตสวนหลวง กรุงเทพฯ",
+            },
+          },
+        },
+
+        PaymentResponse: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              example: "Payment successful, order created",
+            },
+            order: { $ref: "#/components/schemas/Order" },
+            balance: { type: "number", example: 180 },
+          },
+        },
+
+        AddBalanceRequest: {
+          type: "object",
+          required: ["id", "amount"],
+          properties: {
+            id: { type: "string", example: "66fcf09bb5e92d50d3b726a1" },
+            amount: { type: "number", example: 500 },
+          },
+        },
+
         ErrorResponse: {
           type: "object",
           properties: {
@@ -93,7 +173,7 @@ const options = {
       },
     },
   },
-  apis: ["./routes/*.js"],
+  apis: ["./routes/*.js", "./routes/swagger/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

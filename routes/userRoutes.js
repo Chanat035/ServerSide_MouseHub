@@ -186,38 +186,6 @@ const useUserRoute = async (router) => {
 
   /**
    * @swagger
-   * /api/addBalance:
-   *   patch:
-   *     summary: Add balance (admin only)
-   *     tags: [Users]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required: [name, amount]
-   *             properties:
-   *               name:
-   *                 type: string
-   *                 example: johndoe
-   *               amount:
-   *                 type: number
-   *                 example: 500
-   *     responses:
-   *       200:
-   *         description: Balance updated successfully
-   */
-  router.patch(
-    "/addBalance",
-    authMiddleware("admin"),
-    userController.addBalance
-  );
-
-  /**
-   * @swagger
    * /api/changePassword:
    *   patch:
    *     summary: Change password

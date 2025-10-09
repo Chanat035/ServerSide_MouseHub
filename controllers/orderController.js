@@ -1,21 +1,6 @@
 import orderService from "../services/orderService.js";
 
 const orderController = {
-  createOrder: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const { shippingAddress } = req.body;
-
-      const order = await orderService.createOrder(userId, shippingAddress);
-      return res.status(201).json(order);
-    } catch (error) {
-      return res.status(400).json({
-        message: "Failed to create order",
-        error: error.message,
-      });
-    }
-  },
-
   getOrdersByUserId: async (req, res) => {
     try {
       const userId = req.user.id;

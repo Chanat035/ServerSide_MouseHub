@@ -173,11 +173,11 @@ const useUserRoute = async (router) => {
    *         application/json:
    *           schema:
    *             type: object
-   *             required: [name]
+   *             required: [id]
    *             properties:
    *               name:
    *                 type: string
-   *                 example: johndoe
+   *                 example: 68cd7e2cb03c39fc44bd3803
    *     responses:
    *       200:
    *         description: Profile details of the logged-in user

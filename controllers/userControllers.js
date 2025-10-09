@@ -40,9 +40,9 @@ const userController = {
 
   profile: async (req, res) => {
     try {
-      const { name } = req.body;
+      const { Id } = req.body;
 
-      const user = await userService.getUserByUsername(name);
+      const user = await userService.getUserById(Id);
 
       if (!user) {
         return res.status(404).json({

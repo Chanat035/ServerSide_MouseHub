@@ -11,36 +11,6 @@ const useOrderRoute = async (router) => {
 
   /**
    * @swagger
-   * /api/order:
-   *   post:
-   *     summary: Create a new order
-   *     tags: [Order]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required: [shippingAddress]
-   *             properties:
-   *               shippingAddress:
-   *                 type: string
-   *                 example: "99 ถนนจรัญสนิทวงศ์ เขตบางพลัด กรุงเทพฯ"
-   *     responses:
-   *       201:
-   *         description: Order created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: "#/components/schemas/Order"
-   *       400:
-   *         description: Invalid input
-   */
-    router.post("/order", authMiddleware(), orderController.createOrder);
-  /**
-   * @swagger
    * /api/orders:
    *   get:
    *     summary: Get orders by user ID (authenticated user)

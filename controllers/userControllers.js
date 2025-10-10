@@ -125,6 +125,12 @@ const userController = {
         });
       }
 
+      if (user.isDeleted !== null) {
+        return res.status(403).json({
+          message: "This account has been deleted",
+        });
+      }
+
       const jwt_secret = process.env.JWT_SECRET;
       const payload = { username: user.name, userId: user.id, role: user.role };
       const token = jwt.sign(payload, jwt_secret, { expiresIn: "7d" });
@@ -215,6 +221,12 @@ const userController = {
         });
       }
 
+      if (!req.user || req.user.username !== name) {
+        return res.status(403).json({
+          message: "You are not authorized to delete this account",
+        });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({
@@ -229,6 +241,13 @@ const userController = {
       }
 
       const deleteUser = await userService.deleteUser(user);
+
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+
       return res.status(200).json({
         message: "User deleted successfully",
         deletedUser: deleteUser.isdeleted,
@@ -243,9 +262,9 @@ const userController = {
 
   restoreUser: async (req, res) => {
     try {
-      const { name } = req.body;
+      const { id } = req.body;
 
-      const user = await userService.getUserByUsername(name);
+      const user = await userService.getUserById(id);
 
       if (!user) {
         return res.status(404).json({
@@ -265,38 +284,6 @@ const userController = {
         restoreUser: restoreUser.isdeleted,
       });
     } catch (error) {
-      return res.status(500).json({
-        message: "Internal server error",
-        error: error.message,
-      });
-    }
-  },
-
-  addBalance: async (req, res) => {
-    try {
-      const { name, amount } = req.body;
-
-      const user = await userService.getUserByUsername(name);
-      if (!user) {
-        return res.status(404).json({
-          message: "User not found",
-        });
-      }
-
-      if (!Number.isFinite(Number(amount))) {
-        return res.status(400).json({
-          message: "Invalid amount format",
-        });
-      }
-
-      const updatedBalance = await userService.addBalance(user, amount);
-
-      return res.status(200).json({
-        message: "Balance updated successfully",
-        balance: updatedBalance.balance,
-      });
-    } catch (error) {
-      console.error("Error in addBalance:", error);
       return res.status(500).json({
         message: "Internal server error",
         error: error.message,

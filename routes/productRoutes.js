@@ -77,7 +77,7 @@ const useProductRoute = async (router) => {
    * @swagger
    * /api/detail:
    *   get:
-   *     summary: Get product detail by id
+   *     summary: Get product detail by ID (excluding deleted products)
    *     tags: [Products]
    *     parameters:
    *       - in: query
@@ -93,6 +93,8 @@ const useProductRoute = async (router) => {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Product'
+   *       404:
+   *         description: Product not found or deleted
    */
   router.get('/detail', productController.detail);
 
@@ -100,7 +102,7 @@ const useProductRoute = async (router) => {
    * @swagger
    * /api/search:
    *   get:
-   *     summary: Search products by name
+   *     summary: Search products by name (excluding deleted products)
    *     tags: [Products]
    *     parameters:
    *       - in: query
@@ -118,8 +120,38 @@ const useProductRoute = async (router) => {
    *               type: array
    *               items:
    *                 $ref: '#/components/schemas/Product'
+   *       404:
+   *         description: No matching products found
    */
   router.get('/search', productController.searchProducts);
+
+  /**
+   * @swagger
+   * /api/filther:
+   *   get:
+   *     summary: Filter products by category (exact match, excluding deleted)
+   *     tags: [Products]
+   *     parameters:
+   *       - in: query
+   *         name: category
+   *         required: false
+   *         schema:
+   *           type: string
+   *           enum: [Mouse, Mousepad, Mousefeet]
+   *         description: Filter products by specific category. If empty, returns all in enum.
+   *     responses:
+   *       200:
+   *         description: Products filtered by category
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Product'
+   *       404:
+   *         description: No products found for this category
+   */
+  router.get('/filther', productController.filther);
 
   /**
    * @swagger
@@ -138,7 +170,6 @@ const useProductRoute = async (router) => {
    *             properties:
    *               id:
    *                 type: string
-   *                 example: 650f1a2b3c4d5e6f7a8b9c0d
    *               name:
    *                 type: string
    *               price:
@@ -173,7 +204,7 @@ const useProductRoute = async (router) => {
    *         application/json:
    *           schema:
    *             type: object
-   *             required: [id]
+   *             required: [id, confirmMessage]
    *             properties:
    *               id:
    *                 type: string
@@ -183,7 +214,7 @@ const useProductRoute = async (router) => {
    *                 example: Confirm
    *     responses:
    *       200:
-   *         description: Product deleted successfully
+   *         description: Product soft-deleted successfully
    */
   router.delete('/product', authMiddleware("admin"), productController.deleteProduct);
 
@@ -191,7 +222,7 @@ const useProductRoute = async (router) => {
    * @swagger
    * /api/restore:
    *   patch:
-   *     summary: Restore a deleted product (admin only)
+   *     summary: Restore a soft-deleted product (admin only)
    *     tags: [Products]
    *     security:
    *       - bearerAuth: []
@@ -209,6 +240,10 @@ const useProductRoute = async (router) => {
    *     responses:
    *       200:
    *         description: Product restored successfully
+   *       400:
+   *         description: Product is not deleted
+   *       404:
+   *         description: Product not found
    */
   router.patch('/restore', authMiddleware("admin"), productController.restoreProduct);
 };

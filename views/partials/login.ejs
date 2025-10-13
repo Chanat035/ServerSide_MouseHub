@@ -1,0 +1,61 @@
+<!-- Login Modal -->
+<!-- Modal Login -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg rounded-4 border-0">
+      
+      <!-- หัว modal -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-primary">เข้าสู่ระบบ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+
+      <!-- เนื้อหา modal -->
+      <div class="modal-body px-4">
+        <form action="/api/login" method="POST">
+          <div class="mb-3">
+            <label class="form-label">อีเมล</label>
+            <input type="name" name="name" class="form-control rounded-pill shadow-sm" placeholder="กรอกอีเมล" required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">รหัสผ่าน</label>
+            <input type="password" name="password" class="form-control rounded-pill shadow-sm" placeholder="กรอกรหัสผ่าน" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">เข้าสู่ระบบ</button>
+        </form>
+      </div>
+
+      <!-- ท้าย modal -->
+      <div class="modal-footer d-flex justify-content-center border-0">
+        <small class="text-muted">
+          ยังไม่มีบัญชีใช่ไหม?
+          <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">
+            สมัครสมาชิก
+          </a>
+        </small>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- เพิ่ม CSS ตกแต่ง -->
+<style>
+  .modal-content {
+    background: rgb(14, 14, 14);
+  }
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13,110,253,0.3);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #0d6efd, #4dabf7);
+    border: none;
+    transition: 0.3s;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7, #339af0);
+  }
+</style>
+
+

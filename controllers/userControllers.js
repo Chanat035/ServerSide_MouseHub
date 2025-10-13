@@ -40,9 +40,9 @@ const userController = {
 
   profile: async (req, res) => {
     try {
-      const { name } = req.body;
+      const { Id } = req.body;
 
-      const user = await userService.getUserByUsername(name);
+      const id = await userService.getUserByUsername(Id);
 
       if (!user) {
         return res.status(404).json({
@@ -51,11 +51,11 @@ const userController = {
       }
 
       return res.status(200).json({
-        username: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        balance: user.balance,
+        username: id.name,
+        email: id.email,
+        phone: id.phone,
+        address: id.address,
+        balance: id.balance,
       });
     } catch (error) {
       return res.status(500).json({
@@ -67,45 +67,46 @@ const userController = {
 
   register: async (req, res) => {
     try {
-      const { name, email, phone, address, password, confirmPassword } =
-        req.body;
+      const { name, email, phone, address, password, confirmPassword } = req.body;
+
       if (password !== confirmPassword) {
-        return res.status(400).json({
-          message: "Password not match",
+        return res.status(400).render("index", {
+          title: "หน้าแรก MouseHub",
+          registerError: "Password not match"
         });
       }
 
       const existingUser = await userService.getUserByUsername(name);
       if (existingUser) {
-        return res.status(400).json({
-          message: "Username is already registered",
+        return res.status(400).render("index", {
+          title: "หน้าแรก MouseHub",
+          registerError: "Username is already registered"
         });
       }
 
       const existingEmail = await userService.getUserByEmail(email);
       if (existingEmail) {
-        return res.status(400).json({
-          message: "Email is already registered",
+        return res.status(400).render("index", {
+          title: "หน้าแรก MouseHub",
+          registerError: "Email is already registered"
         });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await userService.register(
-        name,
-        email,
-        phone,
-        address,
-        hashedPassword
-      );
-      return res
-        .status(201)
-        .json({ message: "User registered successfully!", user });
+      await userService.register(name, email, phone, address, hashedPassword);
+
+      return res.status(201).redirect("/", {
+        message: "User registered successfully!"
+      });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
+      console.error(error);
+      return res.status(500).render("index", {
+        title: "หน้าแรก MouseHub",
+        registerError: "Internal server error"
+      });
     }
   },
+
 
   login: async (req, res) => {
     try {
@@ -113,53 +114,45 @@ const userController = {
 
       const user = await userService.getUserByUsername(name);
       if (!user) {
-        return res.status(401).json({
-          message: "Username or password incorrect",
-        });
+        return res.status(401).render('index', { loginError: 'Username or password incorrect' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(401).json({
-          message: "Username or password incorrect",
-        });
+        return res.status(401).render('index', { loginError: 'Username or password incorrect' });
       }
 
       const jwt_secret = process.env.JWT_SECRET;
       const payload = { username: user.name, userId: user.id, role: user.role };
-      const token = jwt.sign(payload, jwt_secret, { expiresIn: "7d" });
+      const token = jwt.sign(payload, jwt_secret, { expiresIn: '7d' });
 
-      res.cookie("token", token, {
+      res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return res
-        .status(200)
-        .json({ message: "User logged in successfully!", token });
+      return res.status(200).redirect('/');
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
+      return res.status(500).render('index', { loginError: 'Internal server error' });
     }
   },
 
-  logout: async (req, res) => {
+  logout: (req, res) => {
     try {
       res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
-      return res.status(200).json({ message: "User logged out successfully!" });
+
+      return res.status(200).redirect('/');
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
+      return res.status(500).render('index', { registerError: "Internal server error" });
     }
   },
+
 
   changePassword: async (req, res) => {
     try {
@@ -215,6 +208,12 @@ const userController = {
         });
       }
 
+      if (!req.user || req.user.username !== name) {
+        return res.status(403).json({
+          message: "You are not authorized to delete this account",
+        });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({
@@ -229,6 +228,13 @@ const userController = {
       }
 
       const deleteUser = await userService.deleteUser(user);
+
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+
       return res.status(200).json({
         message: "User deleted successfully",
         deletedUser: deleteUser.isdeleted,
@@ -243,9 +249,9 @@ const userController = {
 
   restoreUser: async (req, res) => {
     try {
-      const { name } = req.body;
+      const { id } = req.body;
 
-      const user = await userService.getUserByUsername(name);
+      const user = await userService.getUserById(id);
 
       if (!user) {
         return res.status(404).json({
@@ -265,38 +271,6 @@ const userController = {
         restoreUser: restoreUser.isdeleted,
       });
     } catch (error) {
-      return res.status(500).json({
-        message: "Internal server error",
-        error: error.message,
-      });
-    }
-  },
-
-  addBalance: async (req, res) => {
-    try {
-      const { name, amount } = req.body;
-
-      const user = await userService.getUserByUsername(name);
-      if (!user) {
-        return res.status(404).json({
-          message: "User not found",
-        });
-      }
-
-      if (!Number.isFinite(Number(amount))) {
-        return res.status(400).json({
-          message: "Invalid amount format",
-        });
-      }
-
-      const updatedBalance = await userService.addBalance(user, amount);
-
-      return res.status(200).json({
-        message: "Balance updated successfully",
-        balance: updatedBalance.balance,
-      });
-    } catch (error) {
-      console.error("Error in addBalance:", error);
       return res.status(500).json({
         message: "Internal server error",
         error: error.message,

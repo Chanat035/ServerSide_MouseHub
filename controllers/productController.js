@@ -76,6 +76,34 @@ const productController = {
     }
   },
 
+  filther: async (req, res) => {
+    try {
+      const { category } = req.query;
+      const products = await productService.getProductByType(category);
+
+      if (!products || products.length === 0) {
+        return res.status(404).json({ message: "No products found" });
+      }
+
+      const formattedProducts = products.map((product) => ({
+        productName: product.name,
+        price: product.price,
+        brand: product.brand,
+        quantity: product.quantity,
+        category: product.category,
+        description: product.description,
+        imgUrl: product.imgUrl,
+      }));
+
+      return res.status(200).json({ products: formattedProducts });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
   createProduct: async (req, res) => {
     try {
       const { name, price, brand, quantity, category, description, imgUrl } =
@@ -178,7 +206,7 @@ const productController = {
     try {
       const { id } = req.body;
 
-      const product = await productService.getProductById(id);
+      const product = await productService.getProductByIdIncludeDeleted(id);
 
       if (!product) {
         return res.status(404).json({

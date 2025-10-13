@@ -1,0 +1,135 @@
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg rounded-4 border-0">
+
+      <!-- หัว modal -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-primary">สมัครสมาชิก</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+
+      <!-- เนื้อหา modal -->
+      <div class="modal-body px-4">
+        <% if (typeof registerError !== 'undefined') { %>
+          <div class="alert alert-danger">
+            <%= registerError %>
+          </div>
+        <% } %>
+
+        <form id="registerForm" action="/api/register" method="POST" novalidate>
+          <div class="mb-3">
+            <label class="form-label">ชื่อผู้ใช้</label>
+            <input type="text" name="name" class="form-control rounded-pill shadow-sm" placeholder="กรอกชื่อผู้ใช้" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">อีเมล</label>
+            <input type="email" name="email" class="form-control rounded-pill shadow-sm" placeholder="กรอกอีเมล" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">เบอร์โทร</label>
+            <input type="text" name="phone" class="form-control rounded-pill shadow-sm" placeholder="กรอกเบอร์โทร" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ที่อยู่</label>
+            <input type="text" name="address" class="form-control rounded-pill shadow-sm" placeholder="กรอกที่อยู่" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">รหัสผ่าน</label>
+            <input type="password" name="password" class="form-control rounded-pill shadow-sm" placeholder="กรอกรหัสผ่าน" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">ยืนยันรหัสผ่าน</label>
+            <input type="password" name="confirmPassword" class="form-control rounded-pill shadow-sm" placeholder="ยืนยันรหัสผ่าน" required>
+            <div class="invalid-feedback"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">สมัครสมาชิก</button>
+        </form>
+      </div>
+
+      <!-- ท้าย modal -->
+      <div class="modal-footer d-flex justify-content-center border-0">
+        <small class="text-muted">
+          มีบัญชีอยู่แล้ว?
+          <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">
+            เข้าสู่ระบบ
+          </a>
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Validation Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("registerForm");
+
+  form.addEventListener("submit", function(e) {
+    let isValid = true;
+
+    // Get values
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+    const address = form.address.value.trim();
+    const password = form.password.value;
+    const confirmPassword = form.confirmPassword.value;
+
+    // Reset feedback
+    form.querySelectorAll(".invalid-feedback").forEach(fb => fb.textContent = "");
+    form.querySelectorAll("input").forEach(input => input.classList.remove("is-invalid"));
+
+    // Validation rules
+    if (name.length < 3) {
+      form.name.classList.add("is-invalid");
+      form.name.nextElementSibling.textContent = "Username must have at least 3 characters";
+      isValid = false;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      form.email.classList.add("is-invalid");
+      form.email.nextElementSibling.textContent = "Invalid email address";
+      isValid = false;
+    }
+
+    if (phone.length < 10) {
+      form.phone.classList.add("is-invalid");
+      form.phone.nextElementSibling.textContent = "Phone number must have at least 10 characters";
+      isValid = false;
+    }
+
+    if (address.length < 5) {
+      form.address.classList.add("is-invalid");
+      form.address.nextElementSibling.textContent = "Address must have at least 5 characters";
+      isValid = false;
+    }
+
+    if (password.length < 6) {
+      form.password.classList.add("is-invalid");
+      form.password.nextElementSibling.textContent = "Password must have at least 6 characters";
+      isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+      form.confirmPassword.classList.add("is-invalid");
+      form.confirmPassword.nextElementSibling.textContent = "Passwords do not match";
+      isValid = false;
+    }
+
+    if (!isValid) e.preventDefault();
+  });
+});
+</script>

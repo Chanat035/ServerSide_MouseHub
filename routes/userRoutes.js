@@ -77,87 +77,89 @@ const useUserRoute = async (router) => {
     userController.register
   );
 
-/**
- * @swagger
- * /api/login:
- *   post:
- *     summary: Login
- *     description: Authenticate a user or admin and return a JWT token.
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - password
- *             properties:
- *               name:
- *                 type: string
- *                 description: Username of the user
- *               password:
- *                 type: string
- *                 description: Password of the user
- *           examples:
- *             userLogin:
- *               summary: Login as User
- *               value:
- *                 name: johndoe
- *                 password: P@ssw0rd!
- *             adminLogin:
- *               summary: Login as Admin
- *               value:
- *                 name: NongP
- *                 password: ppp243
- *     responses:
- *       200:
- *         description: JWT token returned upon successful login
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: JWT token for authentication
- *       401:
- *         description: Unauthorized, invalid username or password
- */
-
+  /**
+   * @swagger
+   * /api/login:
+   *   post:
+   *     summary: Login
+   *     description: Authenticate a user or admin and return a JWT token.
+   *       If the account is marked as deleted (`isDeleted` not null), login will be rejected.
+   *     tags: [Users]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - password
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 description: Username of the user
+   *               password:
+   *                 type: string
+   *                 description: Password of the user
+   *           examples:
+   *             userLogin:
+   *               summary: Login as User
+   *               value:
+   *                 name: johndoe
+   *                 password: P@ssw0rd!
+   *             adminLogin:
+   *               summary: Login as Admin
+   *               value:
+   *                 name: NongP
+   *                 password: ppp243
+   *     responses:
+   *       200:
+   *         description: JWT token returned upon successful login
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 token:
+   *                   type: string
+   *                   description: JWT token for authentication
+   *       401:
+   *         description: Unauthorized, invalid username or password
+   *       403:
+   *         description: Account is deleted and cannot log in
+   */
 
   router.post("/login", validateData(userLoginSchema), userController.login);
 
-/**
- * @swagger
- * /api/logout:
- *   post:
- *     summary: Logout
- *     description: Invalidate the current session by clearing the JWT token (client should remove stored token or cookie).
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: User logged out successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: User logged out successfully!
- *       401:
- *         description: Unauthorized
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized
- */
+  /**
+   * @swagger
+   * /api/logout:
+   *   post:
+   *     summary: Logout
+   *     description: Invalidate the current session by clearing the JWT token (client should remove stored token or cookie).
+   *     tags: [Users]
+   *     responses:
+   *       200:
+   *         description: User logged out successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: User logged out successfully!
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Unauthorized
+   */
 
   router.post("/logout", authMiddleware(), userController.logout);
 
@@ -173,48 +175,16 @@ const useUserRoute = async (router) => {
    *         application/json:
    *           schema:
    *             type: object
-   *             required: [name]
+   *             required: [id]
    *             properties:
    *               name:
    *                 type: string
-   *                 example: johndoe
+   *                 example: 68cd7e2cb03c39fc44bd3803
    *     responses:
    *       200:
    *         description: Profile details of the logged-in user
    */
-  router.get("/profile", userController.profile);
-
-  /**
-   * @swagger
-   * /api/addBalance:
-   *   patch:
-   *     summary: Add balance (admin only)
-   *     tags: [Users]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required: [name, amount]
-   *             properties:
-   *               name:
-   *                 type: string
-   *                 example: johndoe
-   *               amount:
-   *                 type: number
-   *                 example: 500
-   *     responses:
-   *       200:
-   *         description: Balance updated successfully
-   */
-  router.patch(
-    "/addBalance",
-    authMiddleware("admin"),
-    userController.addBalance
-  );
+  router.get("/profile", authMiddleware(), userController.profile);
 
   /**
    * @swagger
@@ -256,8 +226,14 @@ const useUserRoute = async (router) => {
    * @swagger
    * /api/user:
    *   delete:
-   *     summary: Delete user
+   *     summary: Delete user (self-delete only)
+   *     description:
+   *       Permanently mark the authenticated user as deleted.
+   *       Username in JWT token must match the provided username in the request body.
+   *       Once deleted, the user will be automatically logged out (token cleared).
    *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -277,11 +253,18 @@ const useUserRoute = async (router) => {
    *                 example: Confirm
    *     responses:
    *       200:
-   *         description: User deleted successfully
+   *         description: User deleted successfully and logged out
+   *       400:
+   *         description: Password or confirmation message incorrect
+   *       403:
+   *         description: Username in token does not match the provided username
+   *       404:
+   *         description: User not found
    */
   router.delete(
     "/user",
     validateData(deleteUserSchema),
+    authMiddleware(),
     userController.deleteUser
   );
 
@@ -299,11 +282,11 @@ const useUserRoute = async (router) => {
    *         application/json:
    *           schema:
    *             type: object
-   *             required: [name]
+   *             required: [id]
    *             properties:
    *               name:
    *                 type: string
-   *                 example: johndoe
+   *                 example: 68cd7e2cb03c39fc44bd3803
    *     responses:
    *       200:
    *         description: User restored successfully

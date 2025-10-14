@@ -26,7 +26,11 @@ const productService = {
   },
 
   getProductById: async (id) => {
-    return await Product.findById(id);
+    return await Product.findOne({ _id: id, isDeleted: null });
+  },
+
+  getProductByIdIncludeDeleted: async (id) => {
+    return await Product.findById(id); // ไม่กรอง isDeleted
   },
 
   getProductByName: async (partialName) => {
@@ -34,6 +38,29 @@ const productService = {
 
     return await Product.find({
       name: { $regex: partialName, $options: "i" },
+      isDeleted: null,
+    });
+  },
+
+  getProductByType: async (category) => {
+    const allowedCategories = ["Mouse", "Mousepad", "Mousefeet"];
+
+    // ถ้าไม่ได้ระบุ category → แสดงเฉพาะสินค้าที่อยู่ใน enum
+    if (!category || category.trim() === "") {
+      return await Product.find({
+        category: { $in: allowedCategories },
+        isDeleted: null,
+      });
+    }
+
+    // ถ้า category ที่ส่งมาไม่อยู่ใน enum → คืนค่าว่าง
+    if (!allowedCategories.includes(category)) {
+      return [];
+    }
+
+    // แสดงเฉพาะสินค้าที่ category ตรงเป๊ะกับที่เลือก
+    return await Product.find({
+      category: category,
       isDeleted: null,
     });
   },

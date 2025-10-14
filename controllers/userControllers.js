@@ -42,7 +42,7 @@ const userController = {
     try {
       const { Id } = req.body;
 
-      const id = await userService.getUserByUsername(Id);
+      const user = await userService.getUserById(Id);
 
       if (!user) {
         return res.status(404).json({
@@ -51,11 +51,11 @@ const userController = {
       }
 
       return res.status(200).json({
-        username: id.name,
-        email: id.email,
-        phone: id.phone,
-        address: id.address,
-        balance: id.balance,
+        username: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        balance: user.balance,
       });
     } catch (error) {
       return res.status(500).json({
@@ -122,8 +122,14 @@ const userController = {
         return res.status(401).render('index', { loginError: 'Username or password incorrect' });
       }
 
+      if (user.isDeleted !== null) {
+        return res.status(403).json({
+          message: "This account has been deleted",
+        });
+      }
+
       const jwt_secret = process.env.JWT_SECRET;
-      const payload = { username: user.name, userId: user.id, role: user.role };
+      const payload = { username: user.username, userId: user.id, role: user.role };
       const token = jwt.sign(payload, jwt_secret, { expiresIn: '7d' });
 
       res.cookie('token', token, {
@@ -133,7 +139,7 @@ const userController = {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return res.status(200).redirect('/');
+      return res.redirect('/');
     } catch (error) {
       return res.status(500).render('index', { loginError: 'Internal server error' });
     }
@@ -208,7 +214,7 @@ const userController = {
         });
       }
 
-      if (!req.user || req.user.username !== name) {
+      if (!req.user || req.user.name !== name) {
         return res.status(403).json({
           message: "You are not authorized to delete this account",
         });

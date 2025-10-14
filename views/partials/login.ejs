@@ -1,61 +1,157 @@
-<!-- Login Modal -->
 <!-- Modal Login -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg rounded-4 border-0">
-      
+    <div class="modal-content login-modal">
+
       <!-- หัว modal -->
-      <div class="modal-header border-0">
-        <h5 class="modal-title fw-bold text-primary">เข้าสู่ระบบ</h5>
+      <div class="modal-header">
+        <h5 class="modal-title">เข้าสู่ระบบ</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
       </div>
 
       <!-- เนื้อหา modal -->
-      <div class="modal-body px-4">
-        <form action="/api/login" method="POST">
+      <div class="modal-body">
+        <form id="loginForm" action="/api/login" method="POST">
           <div class="mb-3">
-            <label class="form-label">อีเมล</label>
-            <input type="name" name="name" class="form-control rounded-pill shadow-sm" placeholder="กรอกอีเมล" required>
+            <label class="form-label">UserName</label>
+            <input type="text" id="loginName" name="name" class="form-control" placeholder="กรอกบัญชี" required>
           </div>
           <div class="mb-4">
             <label class="form-label">รหัสผ่าน</label>
-            <input type="password" name="password" class="form-control rounded-pill shadow-sm" placeholder="กรอกรหัสผ่าน" required>
+            <input type="password" id="loginPassword" name="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
           </div>
-          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">เข้าสู่ระบบ</button>
+
+          <% if (typeof loginError !=='undefined' ) { %>
+            <div id="loginErrorServer" class="login-error">
+              <%= loginError %>
+            </div>
+          <% } %>
+
+          <div id="loginError" class="login-error"></div>
+
+          <button type="submit" class="btn login-btn">เข้าสู่ระบบ</button>
         </form>
       </div>
 
       <!-- ท้าย modal -->
-      <div class="modal-footer d-flex justify-content-center border-0">
-        <small class="text-muted">
+      <div class="modal-footer">
+        <small>
           ยังไม่มีบัญชีใช่ไหม?
-          <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">
-            สมัครสมาชิก
-          </a>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">สมัครสมาชิก</a>
         </small>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- เพิ่ม CSS ตกแต่ง -->
 <style>
-  .modal-content {
-    background: rgb(14, 14, 14);
-  }
-  .form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 8px rgba(13,110,253,0.3);
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, #0d6efd, #4dabf7);
-    border: none;
-    transition: 0.3s;
-  }
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #0b5ed7, #339af0);
-  }
+/* ---------- Modal Style ---------- */
+.login-modal {
+  background-color: #1a1a1a;
+  color: #ffd700;
+  border-radius: 1rem;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  padding: 1.5rem 1rem;
+}
+
+/* Header */
+.login-modal .modal-header {
+  border-bottom: none;
+  justify-content: center;
+}
+
+.login-modal .modal-title {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+.login-modal .btn-close {
+  filter: invert(1);
+}
+
+/* Form Inputs */
+.login-modal .form-control {
+  background-color: #222;
+  color: #ffd700;
+  border: none;
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+  transition: all 0.3s ease;
+}
+
+.login-modal .form-control::placeholder {
+  color: #ffffff !important;
+  opacity: 0.7 !important;
+}
+
+.login-modal .form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,215,0,0.5);
+  background-color: #111;
+  color: #ffd700;
+}
+
+/* Error Messages */
+.login-error {
+  color: #ffcc00;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Button */
+.login-modal .login-btn {
+  width: 100%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #ffd700, #e6c200);
+  color: #1a1a1a;
+  font-weight: 700;
+  padding: 0.75rem;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.login-modal .login-btn:hover {
+  background: linear-gradient(90deg, #fff176, #ffd700);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Footer Links */
+.login-modal .modal-footer {
+  border-top: none;
+  justify-content: center;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.login-modal .modal-footer a {
+  color: #ffd700;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.login-modal .modal-footer a:hover {
+  color: #fff176;
+  text-decoration: underline;
+}
 </style>
 
+<script>
+document.getElementById('loginForm').addEventListener('submit', function (event) {
+  const name = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errorDiv = document.getElementById('loginError');
 
+  errorDiv.textContent = '';
+
+  if (!name || !password) {
+    event.preventDefault();
+    errorDiv.textContent = '⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบ';
+  }
+});
+</script>

@@ -18,7 +18,8 @@ const ProductSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    default: "mouse",
+    enum: ["Mouse", "Mousepad", "Mousefeet"],
+    default: "Mouse",
   },
   description: {
     type: String,

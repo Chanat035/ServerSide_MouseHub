@@ -1,40 +1,41 @@
 <style>
+  /* ---------- Body ---------- */
   body {
     font-family: 'Prompt', sans-serif;
     background-color: #0d0d0d;
     color: #fff;
+    margin: 0;
   }
 
-  /* ===== NAVBAR ===== */
+  /* ---------- Navbar ---------- */
   .navbar-custom {
-    background: linear-gradient(90deg, #000000, #1a1a1a);
-    box-shadow: 0 2px 10px rgba(255, 191, 0, 0.2);
-    padding: 1rem 3rem;
+    background-color: #1a1a1a;
+    padding: 0.8rem 2rem;
+    box-shadow: 0 2px 10px rgba(255, 191, 0, 0.15);
   }
 
   .navbar-brand {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: #ffb500 !important;
     letter-spacing: 1px;
     transition: color 0.3s;
-    margin-right: 2rem;
   }
 
   .navbar-brand:hover {
     color: #ffd658 !important;
   }
 
-  /* เมนูหลัก */
+  /* ---------- Main menu ---------- */
   .navbar-custom .nav-link {
     color: #f0f0f0;
     font-weight: 500;
+    padding: 0.4rem 0.8rem;
     position: relative;
-    transition: all 0.3s ease;
-    padding: 0.5rem 1rem; /* เพิ่ม padding ให้แต่ละลิงก์ */
+    transition: color 0.3s;
   }
 
-  /* underline effect */
+  /* Underline minimal effect */
   .navbar-custom .nav-link::after {
     content: "";
     display: block;
@@ -42,7 +43,7 @@
     height: 2px;
     background: #ffb500;
     transition: width 0.3s;
-    margin-top: 4px;
+    margin-top: 3px;
   }
 
   .navbar-custom .nav-link:hover::after,
@@ -54,24 +55,18 @@
     color: #ffb500;
   }
 
-  /* สีของ dropdown เมื่อเปิด */
-  .navbar-custom .dropdown.show > .nav-link {
-    color: #ffb500;
-  }
-
-  /* dropdown menu */
-  .dropdown-menu {
-    background-color: #1c1c1c;
+  /* ---------- Dropdown ---------- */
+  .nav-item.dropdown .dropdown-menu {
+    background-color: #1a1a1a;
     border: 1px solid #333;
-    border-radius: 8px;
-    min-width: 200px;
-    padding: 0.5rem 0;
-    margin-top: 0.4rem; /* เพิ่มระยะห่างจากเมนูหลัก */
+    border-radius: 6px;
+    min-width: 180px;
+    padding: 0.3rem 0;
   }
 
   .dropdown-item {
-    color: #e0e0e0;
-    padding: 0.6rem 1.5rem; /* เพิ่ม padding ให้คลิกง่ายขึ้น */
+    color: #f0f0f0;
+    padding: 0.5rem 1rem;
     transition: all 0.2s;
   }
 
@@ -80,7 +75,7 @@
     color: #000;
   }
 
-  /* icons */
+  /* ---------- Icons ---------- */
   .nav-icon {
     font-size: 1.3rem;
     color: #f0f0f0;
@@ -91,71 +86,71 @@
     color: #ffb500;
   }
 
-  /* logout button */
-  .btn-logout {
-    color: #ff5555 !important;
-    font-weight: 500;
+  /* ---------- User Dropdown ---------- */
+  .nav-item.dropdown .nav-link.dropdown-toggle {
+    color: #ffd658 !important;
+    font-weight: 600;
+  }
+
+  .nav-item.dropdown .dropdown-menu form .btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.4rem 1rem;
     border: none;
     background: transparent;
-    padding: 0.3rem 0.6rem;
-    margin-left: 0.5rem;
+    color: #f0f0f0;
   }
 
-  .btn-logout:hover {
-    text-decoration: underline;
-    color: #ff7777 !important;
+  .nav-item.dropdown .dropdown-menu form .btn:hover {
+    background-color: #ffb500;
+    color: #000;
   }
 
-  /* spacing ของกลุ่มเมนูหลักและ user/icons */
+  /* ---------- Navbar spacing ---------- */
   .navbar-nav.mx-auto {
-    gap: 1.5rem; /* ระยะห่างระหว่างเมนูหลัก */
+    gap: 1.2rem;
   }
 
   .d-flex.ms-auto {
-    gap: 1rem; /* ระยะห่างระหว่างไอคอนและ user */
+    gap: 1rem;
   }
-
 </style>
 
-
 <nav class="navbar navbar-expand-lg navbar-custom">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">🐭 MouseHub</a>
-
-    <button class="navbar-toggler text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <i class="bi bi-list fs-2"></i>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <!-- เมนูหลัก -->
-      <div class="mx-auto d-flex align-items-center gap-3">
-        <a class="nav-link" href="/">HOME</a>
-
-        <div class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">PRODUCTS</a>
+  <div class="container-fluid"> <a class="navbar-brand" href="/">🐭 MouseHub</a> <button
+      class="navbar-toggler text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"> <i
+        class="bi bi-list fs-2"></i> </button>
+    <div class="collapse navbar-collapse" id="navbarNav"> <!-- เมนูหลัก -->
+      <div class="mx-auto d-flex align-items-center gap-3"> <a class="nav-link" href="/">HOME</a>
+        <div class="nav-item dropdown"> <a class="nav-link dropdown-toggle" href="#"
+            data-bs-toggle="dropdown">PRODUCTS</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Gaming Mouse</a></li>
-            <li><a class="dropdown-item" href="#">Office Mouse</a></li>
-            <li><a class="dropdown-item" href="#">Accessories</a></li>
+            <li><a class="dropdown-item" href="/GamingMouse">Gaming Mouse</a></li>
+            <li><a class="dropdown-item" href="/OfficeMouse">Office Mouse</a></li>
+            <li><a class="dropdown-item" href="/Accessories">Accessories</a></li>
           </ul>
-        </div>
-
-        <a class="nav-link" href="/about">ABOUT</a>
-      </div>
-
-      <!-- ไอคอนและ user -->
+        </div> <a class="nav-link" href="/about">ABOUT</a>
+      </div> <!-- ไอคอนและ user -->
       <div class="d-flex align-items-center gap-2 ms-auto">
         <% if (user) { %>
-          <span class="nav-link text-warning fw-semibold">👋 สวัสดี, <%= user.username %></span>
-          <form action="/api/logout" method="POST">
-            <button type="submit" class="btn-logout nav-link">Logout</button>
-          </form>
-        <% } else { %>
-          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
-            <i class="bi bi-person nav-icon"></i>
-          </a>
-        <% } %>
-        <a class="nav-link" href="#"><i class="bi bi-cart nav-icon"></i></a>
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" id="userDropdown" role="button"
+              data-bs-toggle="dropdown">
+              👋 สวัสดี, <%= user.username %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="/settings">Setting</a></li>
+              <li>
+                <form action="/api/logout" method="POST">
+                  <button type="submit" class="dropdown-item">Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+
+          <% } else { %> <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"> <i
+                class="bi bi-person nav-icon"></i> </a>
+            <% } %> <a class="nav-link" href="#"><i class="bi bi-cart nav-icon"></i></a>
       </div>
     </div>
   </div>

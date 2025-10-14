@@ -14,7 +14,23 @@
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="partials/style.css">
+  <style>
+    /* Carousel hover zoom effect */
+    #mainCarousel .carousel-item img {
+      transition: transform 0.5s ease;
+    }
+
+    #mainCarousel .carousel-item img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Shadow & rounded */
+    #mainCarousel {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(255, 191, 0, 0.3);
+    }
+  </style>
 </head>
 
 <body>
@@ -29,26 +45,39 @@
 
           <!-- Carousel -->
           <div id="mainCarousel" class="carousel slide mx-auto" data-bs-ride="carousel"
-            style="width:900px; height:500px;">
+            style="max-width:900px; height:500px;">
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"
+                aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+
+            <!-- Slides -->
             <div class="carousel-inner h-100">
               <div class="carousel-item active h-100">
-                <img src="/images/mouse1.jpg" class="d-block w-100 h-100 rounded" alt="Mouse 1">
+                <img src="/img/g-pro.jpg" class="d-block w-100 h-100 rounded" alt="Mouse 1" style="object-fit:cover;">
               </div>
               <div class="carousel-item h-100">
-                <img src="/images/mouse2.jpg" class="d-block w-100 h-100 rounded" alt="Mouse 2">
+                <img src="/img/mouse-er.jpg" class="d-block w-100 h-100 rounded" alt="Mouse 2"
+                  style="object-fit:cover;">
               </div>
               <div class="carousel-item h-100">
-                <img src="/images/mouse3.jpg" class="d-block w-100 h-100 rounded" alt="Accessories">
+                <img src="/img/mousefeet.jpg" class="d-block w-100 h-100 rounded" alt="Accessories"
+                  style="object-fit:cover;">
               </div>
             </div>
 
             <!-- Controls -->
             <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="carousel-control-prev-icon" aria-hidden="true"
+                style="filter: invert(100%) brightness(1.5); width:35px; height:35px;"></span>
               <span class="visually-hidden">Previous</span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="carousel-control-next-icon" aria-hidden="true"
+                style="filter: invert(100%) brightness(1.5); width:35px; height:35px;"></span>
               <span class="visually-hidden">Next</span>
             </button>
           </div>
@@ -68,7 +97,7 @@
         </div>
 
         <script>
-          // ตั้งเวลาเลื่อนอัตโนมัติ 3 วินาที
+          // Auto-slide every 3 seconds
           const carousel = document.querySelector('#mainCarousel');
           const bsCarousel = new bootstrap.Carousel(carousel, {
             interval: 3000,

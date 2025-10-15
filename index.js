@@ -30,17 +30,17 @@ const dbUrl = process.env.DB_URL;
 await mongoose.connect(dbUrl);
 console.log('✅ Connected to MongoDB successfully');
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(bodyParser.json());
+// ✅ Middleware พื้นฐาน
+app.use(express.json())
+app.use(express.static('public'))
+app.use(cookieParser())
+app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }))
 
 // ✅ ให้ทุกหน้า EJS ใช้ user
 app.use(authMiddleware(undefined, true));
 useWebRoute(router);
 
-useWebRoute(router);
 app.use('/', router);
 app.use('/api', router);          // API
 

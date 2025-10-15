@@ -167,8 +167,7 @@
   </head>
 
   <body>
-    <%- include('partials/header') %> 
-    <%- include('partials/login') %> 
+    <%- include('partials/header') %> <%- include('partials/login') %>
     <%-include('partials/register') %>
 
     <div class="container">
@@ -318,14 +317,15 @@
       });
 
       // Header dropdown click
-      document.querySelectorAll(".dropdown-item").forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.preventDefault();
-          const category = item.dataset.category || "";
-          fetchProducts(category);
+      document
+        .querySelectorAll(".dropdown-item[data-category]")
+        .forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.preventDefault();
+            const category = item.dataset.category || "";
+            fetchProducts(category);
+          });
         });
-      });
-
       // อ่าน category จาก URL query
       function getCategoryFromURL() {
         const params = new URLSearchParams(window.location.search);
@@ -339,5 +339,5 @@
       });
     </script>
   </body>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
 </html>

@@ -129,7 +129,7 @@ const userController = {
       }
 
       const jwt_secret = process.env.JWT_SECRET;
-      const payload = { username: user.username, userId: user.id, role: user.role };
+      const payload = { username: user.name, userId: user.id, role: user.role };
       const token = jwt.sign(payload, jwt_secret, { expiresIn: '7d' });
 
       res.cookie('token', token, {
@@ -214,7 +214,7 @@ const userController = {
         });
       }
 
-      if (!req.user || req.user.name !== name) {
+      if (!req.user || req.user.username !== name) {
         return res.status(403).json({
           message: "You are not authorized to delete this account",
         });

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin | MouseHub</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Prompt", sans-serif;
+        background: #f5f5f5;
+        color: #000;
+      }
+
+      /* HEADER */
+      .navbar-custom {
+        background-color: #000;
+        padding: 0.8rem 2rem;
+      }
+      .navbar-brand {
+        color: #ffb500 !important;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .search-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+      }
+      .search-box {
+        width: 40%;
+        max-width: 480px;
+        padding: 10px 16px;
+        border-radius: 25px;
+        border: none;
+        background-color: #e0e0e0;
+        font-size: 14px;
+      }
+      .dropdown-menu {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 6px;
+      }
+      .dropdown-item {
+        color: #eee;
+      }
+      .dropdown-item:hover {
+        background-color: #ffb500;
+        color: #000;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 200px;
+        background-color: #ddd;
+        height: calc(100vh - 70px);
+      }
+      .sidebar-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #bbb;
+        cursor: pointer;
+      }
+      .sidebar-item.active {
+        background-color: #ff8c00;
+        color: #fff;
+      }
+
+      /* MAIN CONTENT */
+      .main-content {
+        margin-left: 200px;
+        margin-top: 70px;
+        padding: 20px;
+      }
+      table {
+        width: 100%;
+        background: #fff;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f7f7f7;
+      }
+      td i {
+        cursor: pointer;
+      }
+
+      /* Floating add button */
+      .add-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #ff8c00;
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .add-button:hover {
+        background-color: #ff6600;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-box {
+        background: #fff;
+        border-radius: 10px;
+        width: 400px;
+        padding: 20px;
+        animation: fadeIn 0.2s ease;
+      }
+      .modal-box h2 {
+        color: #ff8c00;
+        margin-bottom: 15px;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+        gap: 10px;
+      }
+      .modal-actions button {
+        border: none;
+        border-radius: 6px;
+        padding: 8px 15px;
+        cursor: pointer;
+      }
+      .modal-actions .cancel {
+        background: #ddd;
+      }
+      .modal-actions .confirm {
+        background: #ff8c00;
+        color: white;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <%- include('partials/adminHeader') %>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-item active" onclick="loadPage('user', this)">
+        User
+      </div>
+      <div class="sidebar-item" onclick="loadPage('product', this)">
+        Product
+      </div>
+      <div class="sidebar-item" onclick="loadPage('order', this)">Order</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="mainContent" class="main-content"></div>
+    <div class="add-button" onclick="openModal('createProduct')">+</div>
+
+    <script>
+      const data = {
+        user: `
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>name</th><th>email</th><th>phone</th><th>address</th>
+                    <th>balance</th><th>deleted</th><th>restore</th>
+                  </tr>
+                </thead>
+                <tbody id="userBody">
+                  <tr><td colspan="7" class="text-center">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="loadUserScript"></div>
+          `,
+        product: `
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>price</th>
+          <th>quantity</th>
+          <th>brand</th>
+          <th>category</th>
+          <th>description</th>
+          <th>imgUrl</th>
+          <th>deleted</th>
+          <th>edit</th>
+        </tr>
+      </thead>
+      <tbody id="productBody">
+        <tr><td colspan="9" class="text-center">กำลังโหลดข้อมูล...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="loadProductScript"></div>
+`,
+        order: `
+<div class="table-responsive">
+  <table id="orderTable" class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Owner</th>
+        <th>Item</th>
+        <th>Total</th>
+        <th>Address</th>
+        <th>Status</th>
+        <th>Payment Status</th>
+      </tr>
+    </thead>
+    <tbody id="orderBody">
+      <tr><td colspan="7" class="text-center">กำลังโหลดข้อมูล...</td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- load external script -->
+<div id="loadOrderScript"></div>
+`,
+      };
+
+      function loadPage(page, el) {
+        // เปลี่ยน sidebar active
+        document
+          .querySelectorAll(".sidebar-item")
+          .forEach((e) => e.classList.remove("active"));
+        el.classList.add("active");
+
+        // เปลี่ยนเนื้อหาหลัก
+        document.getElementById("mainContent").innerHTML = data[page];
+
+        // ปุ่ม +
+        const addButton = document.querySelector(".add-button");
+        addButton.style.display = page === "product" ? "flex" : "none";
+
+        // ✅ โหลดสคริปต์ user เมื่อเข้าหน้า User
+        if (page === "user") {
+          const existing = document.getElementById("userScriptTag");
+          if (existing) existing.remove();
+
+          const script = document.createElement("script");
+          script.src = "/admin-user.js";
+          script.id = "userScriptTag";
+          document.body.appendChild(script);
+        }
+
+        // ✅ โหลดสคริปต์ product เมื่อเข้าหน้า Product
+        if (page === "product") {
+          const existing = document.getElementById("productScriptTag");
+          if (existing) existing.remove();
+
+          const script = document.createElement("script");
+          script.src = "/admin-product.js";
+          script.id = "productScriptTag";
+          document.body.appendChild(script);
+        }
+
+        // ✅ โหลดสคริปต์ order เมื่อเข้าหน้า Order
+        if (page === "order") {
+          const existing = document.getElementById("orderScriptTag");
+          if (existing) existing.remove(); // กันซ้ำ
+
+          const script = document.createElement("script");
+          script.src = "/admin-order.js";
+          script.id = "orderScriptTag";
+          document.body.appendChild(script);
+        }
+      }
+
+      window.onload = () =>
+        loadPage("user", document.querySelector(".sidebar-item"));
+
+      // MODALS
+      function openModal(type, info = {}) {
+        let content = "";
+
+        // === เพิ่มยอดเงิน ===
+        if (type === "addBalance") {
+          content = `
+    <h2>เพิ่มยอดเงินให้ ${info.name}</h2>
+    <label>จำนวนเงิน</label>
+    <input type="number" id="balanceInput" class="form-control" placeholder="เช่น 1000">
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="confirm" onclick="confirmAddBalance('${info._id}', document.getElementById('balanceInput').value)">ยืนยัน</button>
+    </div>`;
+        }
+
+        // === Restore User ===
+        else if (type === "restoreUser") {
+          content = `
+    <h2>Restore ผู้ใช้</h2>
+    <p>ต้องการ restore ผู้ใช้ <strong>${info.name}</strong> หรือไม่?</p>
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="confirm" onclick="confirmRestoreUser('${info._id}')">ยืนยัน</button>
+    </div>`;
+        }
+
+        // === Create / Edit Product ===
+        else if (type === "createProduct" || type === "editProduct") {
+          const isEdit = type === "editProduct";
+          const productId = info._id || null;
+
+          content = `
+            <h2>${isEdit ? "แก้ไขสินค้า" : "เพิ่มสินค้าใหม่"}</h2>
+            <form id="productForm">
+              <label>ชื่อสินค้า <span class="text-danger">*</span></label>
+              <input required class="form-control" name="name" placeholder="ชื่อสินค้า" value="${
+                info.name || ""
+              }">
+
+              <label>ราคา (บาท)</label>
+              <input class="form-control" type="number" name="price" placeholder="เช่น 999" min="0" value="${
+                info.price || ""
+              }">
+
+              <label>จำนวน</label>
+              <input class="form-control" type="number" name="quantity" placeholder="เช่น 100" min="0" value="${
+                info.quantity || ""
+              }">
+
+              <label>แบรนด์</label>
+              <input class="form-control" name="brand" placeholder="ชื่อแบรนด์" value="${
+                info.brand || ""
+              }">
+
+              <label>หมวดหมู่</label>
+              <select class="form-select" name="category">
+                ${["Mouse", "Mousepad", "Mousefeet"]
+                  .map(
+                    (c) =>
+                      `<option value="${c}" ${
+                        info.category === c ? "selected" : ""
+                      }>${c}</option>`
+                  )
+                  .join("")}
+              </select>
+
+              <label>รายละเอียด</label>
+              <textarea class="form-control" name="description" rows="3" placeholder="รายละเอียดสินค้า">${
+                info.description || ""
+              }</textarea>
+
+              <label>URL รูปภาพ</label>
+              <input class="form-control" type="text" name="imgUrl" placeholder="https://..." value="${
+                info.imgUrl || ""
+              }">
+
+              <div class="modal-actions">
+                <button type="button" class="cancel" onclick="closeModal()">ยกเลิก</button>
+                <button type="submit" class="confirm">${
+                  isEdit ? "บันทึก" : "สร้าง"
+                }</button>
+              </div>
+            </form>
+          `;
+
+          // ✅ ฟังก์ชันเมื่อกด submit
+          setTimeout(() => {
+            const form = document.getElementById("productForm");
+            form.addEventListener("submit", (e) => {
+              e.preventDefault();
+
+              const data = Object.fromEntries(new FormData(form).entries());
+              data.price = Number(data.price);
+              data.quantity = Number(data.quantity);
+
+              if (isEdit) {
+                data.id = productId;
+                updateProduct(data);
+              } else {
+                createProduct(data);
+              }
+            });
+          }, 50);
+        }
+
+        // === Delete Product ===
+        else if (type === "deleteProduct") {
+          content = `
+              <h2>ลบสินค้า</h2>
+              <p>ต้องการลบสินค้า <strong>${info.name}</strong> หรือไม่?</p>
+              <div class="modal-actions">
+                <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+                <button class="confirm" onclick="deleteProduct('${info._id}')">ยืนยัน</button>
+              </div>
+            `;
+        }
+
+        // === Restore Product ===
+        else if (type === "restoreProduct") {
+          content = `
+              <h2>Restore สินค้า</h2>
+              <p>ต้องการ restore สินค้า <strong>${info.name}</strong> หรือไม่?</p>
+              <div class="modal-actions">
+                <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+                <button class="confirm" onclick="restoreProduct('${info._id}')">ยืนยัน</button>
+              </div>
+            `;
+        }
+
+        // === Logout ===
+        else if (type === "logout") {
+          content = `
+            <h2>ออกจากระบบ</h2>
+            <p>ต้องการออกจากระบบหรือไม่?</p>
+            <div class="modal-actions">
+              <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+              <button class="confirm" onclick="confirmAction('logout')">ยืนยัน</button>
+            </div>`;
+        }
+
+        // สร้าง modal overlay
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `<div class="modal-box">${content}</div>`;
+        document.body.appendChild(modal);
+      }
+
+      function closeModal() {
+        const modal = document.querySelector(".modal-overlay");
+        if (modal) modal.remove();
+      }
+
+      function confirmAction(action) {
+        alert(`${action} confirmed`);
+        closeModal();
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -38,6 +38,7 @@ await connect()
 
 // ✅ Middleware พื้นฐาน
 app.use(express.json())
+app.use(express.static('public'))
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))

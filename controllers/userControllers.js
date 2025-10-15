@@ -206,31 +206,24 @@ const userController = {
     try {
       const { name, password, confirmMessage } = req.body;
 
-      const user = await userService.getUserByUsername(name);
-
-      if (!user) {
-        return res.status(404).json({
-          message: "User not found",
-        });
-      }
-
-      if (!req.user || req.user.name !== name) {
+      if (!req.user || req.user.username !== name) {
         return res.status(403).json({
           message: "You are not authorized to delete this account",
         });
       }
 
+      const user = await userService.getUserByUsername(name);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({
-          message: "password is incorrect",
-        });
+        return res.status(400).json({ message: "Password is incorrect" });
       }
 
       if (confirmMessage !== "Confirm") {
-        return res.status(400).json({
-          message: "Please type 'Confirm' to delete your account",
-        });
+        return res.status(400).json({ message: "Please type 'Confirm' to delete your account" });
       }
 
       const deleteUser = await userService.deleteUser(user);

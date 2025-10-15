@@ -1,3 +1,109 @@
+<style>
+  /* 🌙 Minimal Black-Yellow Theme */
+
+/* พื้นหลังของ Modal */
+.modal-content {
+  background-color: #121212; /* ดำเข้ม */
+  color: #f1f1f1; /* ตัวอักษรเทาอ่อน */
+  border: 1px solid #2a2a2a;
+  box-shadow: 0 0 20px rgba(255, 230, 0, 0.1);
+}
+
+/* หัว Modal */
+.modal-header {
+  background-color: #1a1a1a;
+}
+
+.modal-title {
+  color: #ffcc00; /* เหลืองสด */
+}
+
+/* ปุ่มปิด */
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* ฟอร์มและ input */
+.form-control {
+  background-color: #1f1f1f;
+  color: #f1f1f1;
+  border: 1px solid #2d2d2d;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ffcc00;
+  box-shadow: 0 0 6px rgba(255, 204, 0, 0.5);
+  background-color: #262626;
+  color: #fff;
+}
+
+/* invalid field */
+.is-invalid {
+  border-color: #ff4444 !important;
+  box-shadow: 0 0 6px rgba(255, 68, 68, 0.4);
+}
+
+.invalid-feedback {
+  color: #ff6666;
+  font-size: 0.85rem;
+}
+
+/* ปุ่มสมัครสมาชิก */
+.btn-primary {
+  background-color: #ffcc00;
+  color: #000;
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e6b800;
+  transform: translateY(-1px);
+}
+
+/* ลิงก์เข้าสู่ระบบ */
+a.text-primary {
+  color: #ffcc00 !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a.text-primary:hover {
+  color: #ffe666 !important;
+  text-decoration: underline;
+}
+
+/* ข้อความท้าย Modal */
+.modal-footer small {
+  color: #bbb;
+}
+
+/* Alert แสดง error */
+.alert-danger {
+  background-color: #2b0000;
+  color: #ff6666;
+  border: 1px solid #ff3333;
+  border-radius: 10px;
+}
+
+/* ปรับ spacing ให้ดูโปร */
+.modal-body .form-label {
+  font-weight: 500;
+  color: #ffcc00;
+}
+
+.modal-body {
+  background-color: #121212;
+}
+
+.modal-footer {
+  background-color: #1a1a1a;
+}
+
+</style>
+
 <!-- Register Modal -->
 <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

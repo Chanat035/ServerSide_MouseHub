@@ -36,11 +36,15 @@ const productService = {
   getProductByName: async (partialName) => {
     if (!partialName || partialName.trim() === "") return [];
 
+    // ฟังก์ชัน escape regex
+    const escapeRegex = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+
     return await Product.find({
-      name: { $regex: partialName, $options: "i" },
+      name: { $regex: escapeRegex(partialName), $options: "i" },
       isDeleted: null,
     });
   },
+
 
   getProductByType: async (category) => {
     const allowedCategories = ["Mouse", "Mousepad", "Mousefeet"];

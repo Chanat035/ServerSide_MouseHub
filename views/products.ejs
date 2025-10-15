@@ -20,7 +20,7 @@
             margin-top: 20px;
         }
 
-        /* ===== Sidebar ===== */
+        /* Sidebar */
         .sidebar {
             background-color: #1e1e1e;
             border-radius: 16px;
@@ -28,7 +28,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             position: sticky;
             top: 100px;
-            /* ให้ sidebar อยู่กับที่เวลาสกรอลล์ */
         }
 
         .sidebar h5 {
@@ -51,7 +50,7 @@
             transform: translateX(3px);
         }
 
-        /* ===== Product Card ===== */
+        /* Product Card */
         .product-card {
             background-color: #1e1e1e;
             border-radius: 16px;
@@ -102,7 +101,6 @@
             color: #ffda55;
         }
 
-        /* ===== Add to Cart Button ===== */
         .adtocart {
             background: #f1c40f;
             color: #121212;
@@ -125,7 +123,7 @@
             transform: translateX(-50%) scale(1.1);
         }
 
-        /* ===== Layout Adjustments ===== */
+        /* Layout Adjustments */
         .container {
             margin-top: 40px;
             margin-bottom: 60px;
@@ -144,29 +142,39 @@
             display: flex;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-bottom: 20px;
-                position: static;
-                /* ปิด sticky ในจอเล็ก */
-            }
+        .text-muted.text-center {
+            color: #f1c40f !important;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 20px;
+        }
 
-            .product-card img {
-                height: 180px;
-            }
+        #searchInput {
+            width: 220px;
+            float: right;
+            background-color: #1e1e1e;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .form-control::placeholder {
+            color: white;
         }
     </style>
 </head>
 
 <body>
-
     <%- include('partials/header') %>
         <%- include('partials/login') %>
             <%- include('partials/register') %>
 
                 <div class="container">
-                    <!-- ✅ ปรับ row ให้ align-items-start ป้องกัน sidebar ยืด -->
                     <div class="row align-items-start">
+                        <!-- Search -->
+                        <div class="mb-3 col-12">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search">
+                        </div>
+
                         <!-- Sidebar -->
                         <div class="col-md-3 mb-4">
                             <div class="sidebar">
@@ -188,20 +196,18 @@
                 </div>
 
                 <script>
-                    const API_URL = "/api/filther";
+                    const API_FILTER = "/api/filther";
+                    const API_SEARCH = "/api/search";
 
+                    // โหลดสินค้าตาม category
                     async function fetchProducts(category = "") {
-                        const url = category ? `${API_URL}?category=${encodeURIComponent(category)}` : API_URL;
+                        const url = category ? `${API_FILTER}?category=${encodeURIComponent(category)}` : API_FILTER;
                         const res = await fetch(url);
-
-                        if (!res.ok) {
-                            console.error("Error loading products:", res.status);
-                            return;
-                        }
+                        if (!res.ok) return renderProducts([]);
 
                         const data = await res.json();
-                        const products = Array.isArray(data) ? data : data.products;
-                        renderProducts(products || []);
+                        const products = data.products || [];
+                        renderProducts(products);
 
                         // set active sidebar
                         document.querySelectorAll(".prod-cat a").forEach(el => {
@@ -209,6 +215,7 @@
                         });
                     }
 
+                    // Render product card
                     function renderProducts(products) {
                         const productList = document.querySelector(".product-list");
                         productList.innerHTML = "";
@@ -219,23 +226,31 @@
                         }
 
                         products.forEach(p => {
-                            const card = `
-      <div class="col-md-4 d-flex">
+                            const card = document.createElement("div");
+                            card.className = "col-md-4 d-flex";
+
+                            card.innerHTML = `
         <div class="product-card w-100 position-relative">
-          <img src="${p.imgUrl || 'https://www.bootdey.com/image/250x220/FFB6C1/000000'}" alt="${p.productName}">
-          <div class="product-card-body">
-            <h4 class="pro-title">${p.productName || 'ไม่มีชื่อสินค้า'}</h4>
-            <p class="price">${p.price ? p.price + ' ฿' : 'ราคาไม่ระบุ'}</p>
-          </div>
-          <a href="#" class="adtocart"><i class="bi bi-cart"></i></a>
+            <img src="${p.imgUrl || 'https://www.bootdey.com/image/250x220/FFB6C1/000000'}" alt="${p.productName}">
+            <div class="product-card-body">
+                <h4 class="pro-title">${p.productName || 'ไม่มีชื่อสินค้า'}</h4>
+                <p class="price">${p.price ? p.price + ' ฿' : 'ราคาไม่ระบุ'}</p>
+            </div>
         </div>
-      </div>
     `;
-                            productList.innerHTML += card;
+
+                            const productCard = card.querySelector(".product-card");
+
+                            // คลิกที่ card -> ไปหน้า productDetail
+                            productCard.addEventListener("click", () => {
+                                if (!p.productName) return;
+                                window.location.href = `/productDetail?name=${encodeURIComponent(p.productName)}`;
+                            });
+
+                            productList.appendChild(card);
                         });
                     }
-
-                    // Sidebar filter click
+                    // Sidebar click
                     document.querySelectorAll(".prod-cat a").forEach(a => {
                         a.addEventListener("click", e => {
                             e.preventDefault();
@@ -244,27 +259,26 @@
                         });
                     });
 
-                    // Header dropdown click
-                    document.querySelectorAll(".dropdown-item").forEach(item => {
-                        item.addEventListener("click", e => {
-                            e.preventDefault();
-                            const category = item.dataset.category || "";
-                            fetchProducts(category);
-                        });
+                    // Search
+                    const searchInput = document.getElementById('searchInput');
+                    searchInput.addEventListener('input', e => {
+                        const query = e.target.value.trim();
+                        if (!query) return fetchProducts(); // โหลดทั้งหมดถ้า input ว่าง
+
+                        fetch(`${API_SEARCH}?name=${encodeURIComponent(query)}`)
+                            .then(res => res.json())
+                            .then(data => renderProducts(data.products || []))
+                            .catch(err => console.error(err));
                     });
 
-                    // อ่าน category จาก URL query
-                    function getCategoryFromURL() {
-                        const params = new URLSearchParams(window.location.search);
-                        return params.get("category") || "";
-                    }
-
-                    // โหลดสินค้าเมื่อเปิดหน้า /products
+                    // โหลดสินค้าครั้งแรก
                     window.addEventListener("DOMContentLoaded", () => {
-                        const category = getCategoryFromURL();
+                        const params = new URLSearchParams(window.location.search);
+                        const category = params.get("category") || "";
                         fetchProducts(category);
                     });
                 </script>
+
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

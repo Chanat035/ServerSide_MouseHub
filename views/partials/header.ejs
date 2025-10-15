@@ -145,6 +145,7 @@
               👋 สวัสดี, <%= user.username %>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+               <li><a class="dropdown-item" href="/order">MyOrder</a></li>
               <li><a class="dropdown-item" href="/settings">Setting</a></li>
               <li>
                 <form action="/api/logout" method="POST">

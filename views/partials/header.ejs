@@ -122,14 +122,20 @@
         class="bi bi-list fs-2"></i> </button>
     <div class="collapse navbar-collapse" id="navbarNav"> <!-- เมนูหลัก -->
       <div class="mx-auto d-flex align-items-center gap-3"> <a class="nav-link" href="/">HOME</a>
-        <div class="nav-item dropdown"> <a class="nav-link dropdown-toggle" href="#"
-            data-bs-toggle="dropdown">PRODUCTS</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/GamingMouse">Gaming Mouse</a></li>
-            <li><a class="dropdown-item" href="/OfficeMouse">Office Mouse</a></li>
-            <li><a class="dropdown-item" href="/Accessories">Accessories</a></li>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">PRODUCTS</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/products?category=" data-category="">All</a></li>
+                <li><a class="dropdown-item" href="/products?category=Mouse" data-category="Mouse">Mouse</a></li>
+                <li><a class="dropdown-item" href="/products?category=Mousepad" data-category="Mousepad">MousePad</a> </li>
+                <li><a class="dropdown-item" href="/products?category=Mousefeet" data-category="Mousefeet">MouseFeet</a></li>
+              </ul>
+            </li>
           </ul>
-        </div> <a class="nav-link" href="/about">ABOUT</a>
+        </div>
+        <a class="nav-link" href="/about">ABOUT</a>
       </div> <!-- ไอคอนและ user -->
       <div class="d-flex align-items-center gap-2 ms-auto">
         <% if (user) { %>

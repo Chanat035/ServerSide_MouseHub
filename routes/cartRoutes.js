@@ -58,10 +58,10 @@ const useCartRoute = async (router) => {
    *             properties:
    *               productId:
    *                 type: string
-   *                 example: 650f1a2b3c4d5e6f7a8b9c0d
+   *                 example: 68cd13b27f11852234988740
    *               quantity:
    *                 type: number
-   *                 example: 2
+   *                 example: 1
    *     responses:
    *       200:
    *         description: Product added to cart
@@ -123,7 +123,7 @@ const useCartRoute = async (router) => {
    *             properties:
    *               productId:
    *                 type: string
-   *                 example: 650f1a2b3c4d5e6f7a8b9c0d
+   *                 example: 68cd13b27f11852234988740
    *     responses:
    *       200:
    *         description: Product removed from cart

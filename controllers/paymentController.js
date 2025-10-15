@@ -4,8 +4,9 @@ import orderService from "../services/orderService.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import jwt from "jsonwebtoken";
 
-const SYSTEM_USER_ID = "68bc0e6eee5cd4e500edd24b"; // wallet ของระบบ
+const SYSTEM_USER_ID = process.env.SYSTEM_USER_ID; // wallet ของระบบ
 
 const paymentController = {
   addBalance: async (req, res) => {
@@ -40,7 +41,22 @@ const paymentController = {
     session.startTransaction();
 
     try {
-      const { id, shippingAddress, useDefaultAddress } = req.body;
+      const { shippingAddress, useDefaultAddress } = req.body;
+      let id;
+
+      const token = req.cookies.token;
+      if (!token) {
+        return res.status(401).json({ message: "ไม่มี token ใน cookie" });
+      }
+
+      // decode JWT
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        id = decoded.userId;
+      } catch (err) {
+        console.error("JWT decode error:", err);
+        res.status(403).json({ message: "Token ไม่ถูกต้อง" });
+      }
 
       // 1) ตรวจสอบ user
       const user = await userService.getUserById(id);
@@ -110,7 +126,7 @@ const paymentController = {
       if (!finalAddress && useDefaultAddress) {
         finalAddress = user.address; // ดึงจาก user ใน database
       }
-      
+
       if (!finalAddress) {
         await session.abortTransaction();
         session.endSession();

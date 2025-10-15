@@ -129,7 +129,7 @@ const userController = {
       }
 
       const jwt_secret = process.env.JWT_SECRET;
-      const payload = { username: user.name, userId: user.id, role: user.role };
+      const payload = { username: user.name, userId: user.id, role: user.role, balance: user.balance};
       const token = jwt.sign(payload, jwt_secret, { expiresIn: '7d' });
 
       res.cookie('token', token, {

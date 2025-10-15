@@ -1,7 +1,7 @@
 <style>
   /* ---------- Body ---------- */
   body {
-    font-family: 'Prompt', sans-serif;
+    font-family: "Prompt", sans-serif;
     background-color: #0d0d0d;
     color: #fff;
     margin: 0;
@@ -117,46 +117,185 @@
 </style>
 
 <nav class="navbar navbar-expand-lg navbar-custom">
-  <div class="container-fluid"> <a class="navbar-brand" href="/">🐭 MouseHub</a> <button
-      class="navbar-toggler text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"> <i
-        class="bi bi-list fs-2"></i> </button>
-    <div class="collapse navbar-collapse" id="navbarNav"> <!-- เมนูหลัก -->
-      <div class="mx-auto d-flex align-items-center gap-3"> <a class="nav-link" href="/">HOME</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">PRODUCTS</a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/products?category=" data-category="">All</a></li>
-                <li><a class="dropdown-item" href="/products?category=Mouse" data-category="Mouse">Mouse</a></li>
-                <li><a class="dropdown-item" href="/products?category=Mousepad" data-category="Mousepad">MousePad</a> </li>
-                <li><a class="dropdown-item" href="/products?category=Mousefeet" data-category="Mousefeet">MouseFeet</a></li>
-              </ul>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">🐭 MouseHub</a>
+    <button
+      class="navbar-toggler text-light"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- เมนูหลัก -->
+      <div class="mx-auto d-flex align-items-center gap-3">
+        <a class="nav-link" href="/">HOME</a>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+            >PRODUCTS</a
+          >
+          <ul class="dropdown-menu">
+            <li>
+              <a
+                class="dropdown-item"
+                href="/products?category="
+                data-category=""
+                >All</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/products?category=Mouse"
+                data-category="Mouse"
+                >Mouse</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/products?category=Mousepad"
+                data-category="Mousepad"
+                >MousePad</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/products?category=Mousefeet"
+                data-category="Mousefeet"
+                >MouseFeet</a
+              >
             </li>
           </ul>
         </div>
         <a class="nav-link" href="/about">ABOUT</a>
-      </div> <!-- ไอคอนและ user -->
+      </div>
+      <!-- ไอคอนและ user -->
       <div class="d-flex align-items-center gap-2 ms-auto">
         <% if (user) { %>
-          <div class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" id="userDropdown" role="button"
-              data-bs-toggle="dropdown">
-              👋 สวัสดี, <%= user.username %>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="/settings">Setting</a></li>
-              <li>
-                <form action="/api/logout" method="POST">
-                  <button type="submit" class="dropdown-item">Logout</button>
-                </form>
-              </li>
-            </ul>
+        <div class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle text-warning fw-semibold"
+            href="#"
+            id="userDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+          >
+            👋 สวัสดี, <%= user.username %>
+          </a>
+          <ul
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="userDropdown"
+          >
+            <li>
+              <span class="dropdown-item-text text-warning fw-semibold">
+                ยอดคงเหลือ : <%= user.balance %> ฿
+              </span>
+            </li>
+            <li><a class="dropdown-item" href="/settings">Setting</a></li>
+            <li>
+              <form action="/api/logout" method="POST">
+                <button type="submit" class="dropdown-item">Logout</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <!-- Cart Modal -->
+        <div
+          class="modal fade"
+          id="cartModal"
+          tabindex="-1"
+          aria-labelledby="cartModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+              <div class="modal-header border-0">
+                <h5 class="modal-title" id="cartModalLabel">
+                  🛒 ตะกร้าสินค้าของคุณ
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div id="cartItemsContainer" class="list-group"></div>
+              </div>
+              <div class="modal-footer border-0">
+                <div id="cartTotal" class="fw-bold text-warning">
+                  รวมทั้งหมด: 0฿
+                </div>
+                <button id="checkoutButton" class="btn btn-warning fw-semibold">
+                  ไปชำระเงิน
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <% } else { %> <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"> <i
-                class="bi bi-person nav-icon"></i> </a>
-            <% } %> <a class="nav-link" href="#"><i class="bi bi-cart nav-icon"></i></a>
+        <div
+          class="modal fade"
+          id="confirmCheckoutModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+              <div class="modal-header border-0">
+                <h5 class="modal-title">ยืนยันการสั่งซื้อ</h5>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body text-center">
+                ต้องการทำการสั่งซื้อสินค้าทั้งหมดในตะกร้าใช่หรือไม่?
+              </div>
+              <div class="modal-footer border-0">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                  ยกเลิก
+                </button>
+                <button id="confirmCheckoutBtn" class="btn btn-warning">
+                  ยืนยัน
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script src="/user-cart.js"></script>
+        <% if (user) { %>
+        <script>
+          window.USER_ID = "<%= user.userId %>";
+          window.USER_ADDRESS = "<%= user.address || '' %>";
+        </script>
+        <% } %>
+        <script src="/user-checkout.js"></script>
+        <% } else { %>
+        <a
+          class="nav-link"
+          href="#"
+          data-bs-toggle="modal"
+          data-bs-target="#loginModal"
+        >
+          <i class="bi bi-person nav-icon"></i>
+        </a>
+        <% } %>
+        <a
+          class="nav-link"
+          href="#"
+          id="cartButton"
+          data-bs-toggle="modal"
+          data-bs-target="#cartModal"
+        >
+          <i class="bi bi-cart nav-icon"></i>
+        </a>
       </div>
     </div>
   </div>

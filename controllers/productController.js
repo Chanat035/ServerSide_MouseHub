@@ -54,6 +54,7 @@ const productController = {
       const product = await productService.getProductByName(name);
 
       const formattedProducts = product.map((product) => ({
+        productId: product._id,
         productName: product.name,
         price: product.price,
         brand: product.brand,
@@ -86,6 +87,7 @@ const productController = {
       }
 
       const formattedProducts = products.map((product) => ({
+        productId: product._id,
         productName: product.name,
         price: product.price,
         brand: product.brand,

@@ -1,5 +1,6 @@
 import cartService from "../services/cartService.js";
 import productService from "../services/productService.js";
+import jwt from "jsonwebtoken";
 
 const cartController = {
   getCart: async (req, res) => {
@@ -18,7 +19,21 @@ const cartController = {
   addToCart: async (req, res) => {
     try {
       const { productId, quantity } = req.body;
-      const userId = req.user.id;
+      let userId;
+
+      const token = req.cookies.token;
+      if (!token) {
+        return res.status(401).json({ message: "ไม่มี token ใน cookie" });
+      }
+
+      // decode JWT
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.userId;
+      } catch (err) {
+        console.error("JWT decode error:", err);
+        res.status(403).json({ message: "Token ไม่ถูกต้อง" });
+      }
 
       if (!productId || !quantity) {
         return res

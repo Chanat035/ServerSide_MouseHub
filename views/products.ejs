@@ -1,384 +1,404 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Products</title>
 
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
-        body {
-            background-color: #121212;
-            color: #f1c40f;
-            font-family: "Prompt", sans-serif;
-            margin-top: 20px;
-        }
+      body {
+        background-color: #121212;
+        color: #f1c40f;
+        font-family: "Prompt", sans-serif;
+        margin-top: 20px;
+      }
 
-        /* ===== Sidebar ===== */
+      /* ===== Sidebar ===== */
+      .sidebar {
+        background-color: #1e1e1e;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        position: sticky;
+        top: 100px;
+        /* ให้ sidebar อยู่กับที่เวลาสกรอลล์ */
+      }
+
+      .sidebar h5 {
+        color: #f1c40f;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+      }
+
+      .sidebar .nav-link {
+        color: #b3b3b3;
+        font-weight: 500;
+        padding: 8px 0;
+        transition: 0.3s;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #f1c40f;
+        transform: translateX(3px);
+      }
+
+      /* ===== Product Card ===== */
+      .product-card {
+        background-color: #1e1e1e;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        height: 100%;
+      }
+
+      .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+      }
+
+      .product-card img {
+        width: 100%;
+        height: 230px;
+        object-fit: contain;
+        background-color: #fff;
+        padding: 10px;
+        border-bottom: 1px solid #333;
+      }
+
+      .product-card-body {
+        text-align: center;
+        padding: 15px 10px 60px;
+        flex-grow: 1;
+      }
+
+      .pro-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f1c40f;
+        margin-bottom: 8px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .price {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffda55;
+      }
+
+      /* ===== Add to Cart Button ===== */
+      .adtocart {
+        background: #f1c40f;
+        color: #121212;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 50px;
+        font-size: 22px;
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+      }
+
+      .adtocart:hover {
+        background: #ffda55;
+        transform: translateX(-50%) scale(1.1);
+      }
+
+      /* ===== Layout Adjustments ===== */
+      .container {
+        margin-top: 40px;
+        margin-bottom: 60px;
+      }
+
+      .row.align-items-start {
+        align-items: flex-start !important;
+      }
+
+      .product-list {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .product-list .col-md-4 {
+        display: flex;
+      }
+
+      #searchInput {
+        background-color: #1e1e1e;
+        /* พื้นหลังเข้มให้เข้ากับธีม */
+        color: #ffffff;
+        /* สีตัวอักษร */
+        border: 1px solid #555;
+        /* ปรับเส้นขอบถ้าต้องการ */
+      }
+
+      /* สี placeholder ให้เป็นสีขาวอ่อน */
+      #searchInput::placeholder {
+        color: #cccccc;
+        opacity: 1;
+        /* บังคับให้สีแสดงชัด */
+      }
+
+      @media (max-width: 768px) {
         .sidebar {
-            background-color: #1e1e1e;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            position: sticky;
-            top: 100px;
-            /* ให้ sidebar อยู่กับที่เวลาสกรอลล์ */
-        }
-
-        .sidebar h5 {
-            color: #f1c40f;
-            font-weight: 600;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        .sidebar .nav-link {
-            color: #b3b3b3;
-            font-weight: 500;
-            padding: 8px 0;
-            transition: 0.3s;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: #f1c40f;
-            transform: translateX(3px);
-        }
-
-        /* ===== Product Card ===== */
-        .product-card {
-            background-color: #1e1e1e;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-            height: 100%;
-        }
-
-        .product-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+          margin-bottom: 20px;
+          position: static;
+          /* ปิด sticky ในจอเล็ก */
         }
 
         .product-card img {
-            width: 100%;
-            height: 230px;
-            object-fit: contain;
-            background-color: #fff;
-            padding: 10px;
-            border-bottom: 1px solid #333;
+          height: 180px;
         }
-
-        .product-card-body {
-            text-align: center;
-            padding: 15px 10px 60px;
-            flex-grow: 1;
-        }
-
-        .pro-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #f1c40f;
-            margin-bottom: 8px;
-            min-height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .price {
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffda55;
-        }
-
-        /* ===== Add to Cart Button ===== */
-        .adtocart {
-            background: #f1c40f;
-            color: #121212;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 50px;
-            font-size: 22px;
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .adtocart:hover {
-            background: #ffda55;
-            transform: translateX(-50%) scale(1.1);
-        }
-
-        /* ===== Layout Adjustments ===== */
-        .container {
-            margin-top: 40px;
-            margin-bottom: 60px;
-        }
-
-        .row.align-items-start {
-            align-items: flex-start !important;
-        }
-
-        .product-list {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .product-list .col-md-4 {
-            display: flex;
-        }
-
-        #searchInput {
-            background-color: #1e1e1e;
-            /* พื้นหลังเข้มให้เข้ากับธีม */
-            color: #ffffff;
-            /* สีตัวอักษร */
-            border: 1px solid #555;
-            /* ปรับเส้นขอบถ้าต้องการ */
-        }
-
-        /* สี placeholder ให้เป็นสีขาวอ่อน */
-        #searchInput::placeholder {
-            color: #cccccc;
-            opacity: 1;
-            /* บังคับให้สีแสดงชัด */
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-bottom: 20px;
-                position: static;
-                /* ปิด sticky ในจอเล็ก */
-            }
-
-            .product-card img {
-                height: 180px;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <%- include('partials/header') %>
-        <%- include('partials/login') %>
-            <%-include('partials/register') %>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/login') %>
+    <%-include('partials/register') %>
 
-                <div class="container">
-                    <div class="d-flex justify-content-end mb-3">
-                        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search">
-                    </div>
-                    <!-- ✅ ปรับ row ให้ align-items-start ป้องกัน sidebar ยืด -->
-                    <div class="row align-items-start">
-                        <!-- Sidebar -->
-                        <div class="col-md-3 mb-4">
-                            <div class="sidebar">
-                                <h5>Category</h5>
-                                <ul class="nav flex-column prod-cat">
-                                    <li>
-                                        <a href="#" class="nav-link" data-category="Mouse">Mouse</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="nav-link" data-category="Mousepad">MousePad</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="nav-link" data-category="Mousefeet">MouseFeet</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="nav-link active" data-category="">All</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+    <div class="container">
+      <div class="d-flex justify-content-end mb-3">
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control w-25"
+          placeholder="Search"
+        />
+      </div>
+      <!-- ✅ ปรับ row ให้ align-items-start ป้องกัน sidebar ยืด -->
+      <div class="row align-items-start">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+          <div class="sidebar">
+            <h5>Category</h5>
+            <ul class="nav flex-column prod-cat">
+              <li>
+                <a href="#" class="nav-link" data-category="Mouse">Mouse</a>
+              </li>
+              <li>
+                <a href="#" class="nav-link" data-category="Mousepad"
+                  >MousePad</a
+                >
+              </li>
+              <li>
+                <a href="#" class="nav-link" data-category="Mousefeet"
+                  >MouseFeet</a
+                >
+              </li>
+              <li>
+                <a href="#" class="nav-link active" data-category="">All</a>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-                        <!-- Product List -->
-                        <div class="col-md-9">
-                            <div class="row product-list g-4"></div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Product List -->
+        <div class="col-md-9">
+          <div class="row product-list g-4"></div>
+        </div>
+      </div>
+    </div>
 
-                <script>
-                    const API_URL = "/api/filther";
+    <script>
+      const API_URL = "/api/filther";
 
-                    async function fetchProducts(category = "") {
-                        const url = category
-                            ? `${API_URL}?category=${encodeURIComponent(category)}`
-                            : API_URL;
-                        const res = await fetch(url);
+      async function fetchProducts(category = "") {
+        const url = category
+          ? `${API_URL}?category=${encodeURIComponent(category)}`
+          : API_URL;
+        const res = await fetch(url);
 
-                        if (!res.ok) {
-                            console.error("Error loading products:", res.status);
-                            return;
-                        }
+        if (!res.ok) {
+          console.error("Error loading products:", res.status);
+          return;
+        }
 
-                        const data = await res.json();
-                        const products = Array.isArray(data) ? data : data.products;
-                        renderProducts(products || []);
+        const data = await res.json();
+        const products = Array.isArray(data) ? data : data.products;
+        renderProducts(products || []);
 
-                        // set active sidebar
-                        document.querySelectorAll(".prod-cat a").forEach((el) => {
-                            el.classList.toggle("active", el.dataset.category === category);
-                        });
-                    }
+        // set active sidebar
+        document.querySelectorAll(".prod-cat a").forEach((el) => {
+          el.classList.toggle("active", el.dataset.category === category);
+        });
+      }
 
-                    function renderProducts(products) {
-                        const productList = document.querySelector(".product-list");
-                        productList.innerHTML = "";
+      function renderProducts(products) {
+        const productList = document.querySelector(".product-list");
+        productList.innerHTML = "";
 
-                        if (!products.length) {
-                            productList.innerHTML = `
+        if (!products.length) {
+          productList.innerHTML = `
   <p class="text-center" style="color: #ffda55; font-size: 1.5rem; font-weight: 600;">
     ไม่มีสินค้าในหมวดนี้
   </p>
 `;
-                            return;
-                        }
+          return;
+        }
 
-                        products.forEach((p) => {
-                            // ใช้ p._id หรือ p.id ขึ้นกับชื่อฟิลด์ที่ backend คืนมา
-                            const id = p._id || p.id || p.productId || "";
-                            const card = `
+        products.forEach((p) => {
+          // ใช้ p._id หรือ p.id ขึ้นกับชื่อฟิลด์ที่ backend คืนมา
+          const id = p._id || p.id || p.productId || "";
+          const card = `
          <div class="col-md-4 d-flex">
-            <div class="product-card w-100 position-relative" data-id="${p._id || p.id || p.productId
-                                }">
-                <img src="${p.imgUrl ||
-                                "https://www.bootdey.com/image/250x220/FFB6C1/000000"
-                                }" alt="${p.productName}">
+            <div class="product-card w-100 position-relative" data-id="${
+              p._id || p.id || p.productId
+            }">
+                <img src="${
+                  p.imgUrl ||
+                  "https://www.bootdey.com/image/250x220/FFB6C1/000000"
+                }" alt="${p.productName}">
                     <div class="product-card-body">
-                        <h4 class="pro-title">${p.productName || "ไม่มีชื่อสินค้า"
-                                }</h4>
-                         <p class="price">${p.price ? p.price + " ฿" : "ราคาไม่ระบุ"
-                                }</p>
+                        <h4 class="pro-title">${
+                          p.productName || "ไม่มีชื่อสินค้า"
+                        }</h4>
+                         <p class="price">${
+                           p.price ? p.price + " ฿" : "ราคาไม่ระบุ"
+                         }</p>
                     </div>
                  <a href="#" class="adtocart"><i class="bi bi-cart"></i></a>
             </div>
         </div> `;
-                            productList.innerHTML += card;
-                        });
-                    }
+          productList.innerHTML += card;
+        });
+      }
 
-                    document.addEventListener("click", async (e) => {
-                        const addBtn = e.target.closest(".adtocart");
-                        const card = e.target.closest(".product-card");
+      document.addEventListener("click", async (e) => {
+        const addBtn = e.target.closest(".adtocart");
+        const card = e.target.closest(".product-card");
 
-                        // Add to Cart
-                        if (addBtn && card) {
-                            e.preventDefault();
-                            const productId = card.dataset.id;
-                            if (productId) {
-                                try {
-                                    const res = await fetch("/api/addToCart", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        credentials: "include",
-                                        body: JSON.stringify({ productId, quantity: 1 }),
-                                    });
-                                    const result = await res.json();
-                                    if (res.ok) alert("✅ เพิ่มสินค้าลงตะกร้าแล้ว!");
-                                    else if (res.status === 401)
-                                        alert("⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในตะกร้า");
-                                    else
-                                        alert(
-                                            `❌ เพิ่มสินค้าไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}`
-                                        );
-                                } catch (err) {
-                                    console.error("Error adding to cart:", err);
-                                    alert("❌ ไม่สามารถเพิ่มสินค้าได้ กรุณาลองใหม่");
-                                }
-                            }
-                            return;
-                        }
+        // Add to Cart
+        if (addBtn && card) {
+          e.preventDefault();
+          const productId = card.dataset.id;
+          if (productId) {
+            try {
+              const res = await fetch("/api/addToCart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ productId, quantity: 1 }),
+              });
+              const result = await res.json();
+              if (res.ok) alert("✅ เพิ่มสินค้าลงตะกร้าแล้ว!");
+              else if (res.status === 401)
+                alert("⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในตะกร้า");
+              else
+                alert(
+                  `❌ เพิ่มสินค้าไม่สำเร็จ: ${
+                    result.message || "เกิดข้อผิดพลาด"
+                  }`
+                );
+            } catch (err) {
+              console.error("Error adding to cart:", err);
+              alert("❌ ไม่สามารถเพิ่มสินค้าได้ กรุณาลองใหม่");
+            }
+          }
+          return;
+        }
 
-                        // Click บน card → ไปหน้า detail
-                        if (card && !addBtn) {
-                            const productId = card.dataset.id;
-                            if (productId) {
-                                window.location.href = `/productdetail?id=${productId}`;
-                            }
-                        }
-                    });
+        // Click บน card → ไปหน้า detail
+        if (card && !addBtn) {
+          const productId = card.dataset.id;
+          if (productId) {
+            window.location.href = `/productdetail?id=${productId}`;
+          }
+        }
+      });
 
-                    // Sidebar filter click
-                    document.querySelectorAll(".prod-cat a").forEach((a) => {
-                        a.addEventListener("click", (e) => {
-                            e.preventDefault();
-                            const category = a.dataset.category || "";
-                            fetchProducts(category);
-                        });
-                    });
+      // Sidebar filter click
+      document.querySelectorAll(".prod-cat a").forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const category = a.dataset.category || "";
+          fetchProducts(category);
+        });
+      });
 
-                    // Header dropdown click
-                    document
-                        .querySelectorAll(".dropdown-item[data-category]")
-                        .forEach((item) => {
-                            item.addEventListener("click", (e) => {
-                                e.preventDefault();
-                                const category = item.dataset.category || "";
-                                fetchProducts(category);
-                            });
-                        });
-                    // อ่าน category จาก URL query
-                    function getCategoryFromURL() {
-                        const params = new URLSearchParams(window.location.search);
-                        return params.get("category") || "";
-                    }
+      // Header dropdown click
+      document
+        .querySelectorAll(".dropdown-item[data-category]")
+        .forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.preventDefault();
+            const category = item.dataset.category || "";
+            fetchProducts(category);
+          });
+        });
+      // อ่าน category จาก URL query
+      function getCategoryFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("category") || "";
+      }
 
-                    // โหลดสินค้าเมื่อเปิดหน้า /products
-                    window.addEventListener("DOMContentLoaded", () => {
-                        const category = getCategoryFromURL();
-                        fetchProducts(category);
-                    });
+      // โหลดสินค้าเมื่อเปิดหน้า /products
+      window.addEventListener("DOMContentLoaded", () => {
+        const category = getCategoryFromURL();
+        fetchProducts(category);
+      });
 
-                    const searchInput = document.getElementById("searchInput");
+      const searchInput = document.getElementById("searchInput");
 
-                    searchInput.addEventListener("input", () => {
-                        const keyword = searchInput.value.trim().toLowerCase();
-                        const filteredProducts = window.allProducts.filter(p =>
-                            p.productName.toLowerCase().includes(keyword)
-                        );
-                        renderProducts(filteredProducts);
-                    });
+      searchInput.addEventListener("input", () => {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const filteredProducts = window.allProducts.filter((p) =>
+          p.productName.toLowerCase().includes(keyword)
+        );
+        renderProducts(filteredProducts);
+      });
 
-                    // ปรับ fetchProducts ให้เก็บสินค้าทั้งหมด
-                    async function fetchProducts(category = "") {
-                        const url = category
-                            ? `${API_URL}?category=${encodeURIComponent(category)}`
-                            : API_URL;
-                        const res = await fetch(url);
+      // ปรับ fetchProducts ให้เก็บสินค้าทั้งหมด
+      async function fetchProducts(category = "") {
+        const url = category
+          ? `${API_URL}?category=${encodeURIComponent(category)}`
+          : API_URL;
+        const res = await fetch(url);
 
-                        if (!res.ok) {
-                            console.error("Error loading products:", res.status);
-                            return;
-                        }
+        if (!res.ok) {
+          console.error("Error loading products:", res.status);
+          return;
+        }
 
-                        const data = await res.json();
-                        const products = Array.isArray(data) ? data : data.products;
-                        window.allProducts = products || []; // เก็บสินค้าไว้ global
-                        renderProducts(window.allProducts);
+        const data = await res.json();
+        const products = Array.isArray(data) ? data : data.products;
+        window.allProducts = products || []; // เก็บสินค้าไว้ global
+        renderProducts(window.allProducts);
 
-                        // set active sidebar
-                        document.querySelectorAll(".prod-cat a").forEach((el) => {
-                            el.classList.toggle("active", el.dataset.category === category);
-                        });
-                    }
-
-                </script>
-</body>
-
+        // set active sidebar
+        document.querySelectorAll(".prod-cat a").forEach((el) => {
+          el.classList.toggle("active", el.dataset.category === category);
+        });
+      }
+    </script>
+  </body>
 </html>

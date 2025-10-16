@@ -54,7 +54,7 @@ const cartService = {
     if (!cart) throw new Error("Cart not found");
 
     cart.items = cart.items.filter(
-      (item) => item.productId.toString() !== productId
+      (item) => item.productId.toString() !== productId.toString()
     );
     await cart.save();
 

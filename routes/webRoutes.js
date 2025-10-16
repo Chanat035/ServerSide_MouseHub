@@ -26,12 +26,12 @@ const useWebRoute = (router) => {
 
   // route ไปหน้า productDetail
   router.get('/productDetail', async (req, res) => {
-    const { name } = req.query;
-    const products = await productService.getProductByName(name);
+    const { id } = req.query;
+    if (!id) return res.redirect('/products');
 
-    if (!products || products.length === 0) return res.redirect('/products');
+    const product = await productService.getProductById(id); // ต้องมีฟังก์ชันนี้
+    if (!product) return res.redirect('/products');
 
-    const product = products[0]; // เลือกตัวแรก
     res.render('productDetail', {
       product,
       productId: product._id

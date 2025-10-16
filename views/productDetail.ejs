@@ -96,6 +96,40 @@
                     })
                     .catch(err => console.error(err));
             }
+
+            async function addToCart(productId, quantity = 1) {
+                try {
+                    const res = await fetch("/api/addToCart", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        credentials: "include", // ให้ cookie ถูกส่งไปด้วย
+                        body: JSON.stringify({ productId, quantity })
+                    });
+
+                    const result = await res.json();
+
+                    if (res.ok) {
+                        alert("✅ เพิ่มสินค้าลงตะกร้าแล้ว!");
+                    } else if (res.status === 401) {
+                        alert("⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในตะกร้า");
+                    } else {
+                        alert(`❌ เพิ่มสินค้าไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}`);
+                    }
+                } catch (err) {
+                    console.error("Error adding to cart:", err);
+                    alert("❌ ไม่สามารถเพิ่มสินค้าได้ กรุณาลองใหม่");
+                }
+            }
+
+
+            document.getElementById("addToCartBtn").addEventListener("click", () => {
+                const quantity = parseInt(document.getElementById("productQty").value) || 1;
+                addToCart("<%= productId %>", quantity);
+            });
+
+
         </script>
 
 

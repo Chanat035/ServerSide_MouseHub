@@ -29,7 +29,7 @@ const authMiddleware = (requiredRole = undefined, attachOnly = false) => {
       }
 
       // attach user ให้ทั้ง EJS และ API
-      req.user = { id: user._id, username: user.name, role: user.role };
+      req.user = { id: user._id, username: user.name, role: user.role, balance: user.balance};
       res.locals.user = req.user;
 
       // ตรวจ role เฉพาะตอน requiredRole

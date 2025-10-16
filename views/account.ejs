@@ -1,224 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Account Settings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background-color: #0d0d0d;
-            color: #f1c40f;
-            font-family: "Poppins", sans-serif;
-        }
+      body {
+        background-color: #0d0d0d;
+        color: #f1c40f;
+        font-family: "Poppins", sans-serif;
+      }
 
-        h1 {
-            font-weight: 600;
-            color: #f1c40f;
-        }
+      h1 {
+        font-weight: 600;
+        color: #f1c40f;
+      }
 
-        .card {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-        }
+      input.form-control::placeholder {
+        color: #ffffff;
+        opacity: 60%;
+      }
 
-        .card-header {
-            font-weight: 500;
-            border-bottom: none;
-        }
+      .card {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        color: #fff;
+      }
 
-        .form-control {
-            background-color: #111;
-            border: 1px solid #444;
-            color: #f1c40f;
-        }
+      .card-header {
+        font-weight: 500;
+        border-bottom: none;
+      }
 
-        .form-control:focus {
-            background-color: #111;
-            border-color: #f1c40f;
-            box-shadow: 0 0 5px #f1c40f33;
-            color: #fff;
-        }
+      .form-control {
+        background-color: #111;
+        border: 1px solid #444;
+        color: #f1c40f;
+      }
 
-        .btn-primary {
-            background-color: #f1c40f;
-            color: #000;
-            border: none;
-            font-weight: 600;
-        }
+      .form-control:focus {
+        background-color: #111;
+        border-color: #f1c40f;
+        box-shadow: 0 0 5px #f1c40f33;
+        color: #fff;
+      }
 
-        .btn-primary:hover {
-            background-color: #d4ac0d;
-            color: #000;
-        }
+      .btn-primary {
+        background-color: #f1c40f;
+        color: #000;
+        border: none;
+        font-weight: 600;
+      }
 
-        .btn-danger {
-            background-color: #c0392b;
-            border: none;
-            font-weight: 600;
-        }
+      .btn-primary:hover {
+        background-color: #d4ac0d;
+        color: #000;
+      }
 
-        .btn-danger:hover {
-            background-color: #e74c3c;
-        }
+      .btn-danger {
+        background-color: #c0392b;
+        border: none;
+        font-weight: 600;
+      }
 
-        .card-header.bg-primary {
-            background-color: #f1c40f !important;
-            color: #000 !important;
-        }
+      .btn-danger:hover {
+        background-color: #e74c3c;
+      }
 
-        .card-header.bg-danger {
-            background-color: #c0392b !important;
-            color: #fff !important;
-        }
+      .card-header.bg-primary {
+        background-color: #f1c40f !important;
+        color: #000 !important;
+      }
 
-        .container {
-            max-width: 600px;
-        }
+      .card-header.bg-danger {
+        background-color: #c0392b !important;
+        color: #fff !important;
+      }
 
-        input[readonly] {
-            opacity: 0.8;
-        }
+      .container {
+        max-width: 600px;
+      }
 
-        .btn-outline-warning {
-            border-color: #f1c40f;
-            color: #f1c40f;
-        }
+      input[readonly] {
+        opacity: 0.8;
+      }
 
-        .btn-outline-warning:hover {
-            background-color: #f1c40f;
-            color: #000;
-        }
+      .btn-outline-warning {
+        border-color: #f1c40f;
+        color: #f1c40f;
+      }
 
-        .btn-outline-danger {
-            border-color: #c0392b;
-            color: #c0392b;
-        }
+      .btn-outline-warning:hover {
+        background-color: #f1c40f;
+        color: #000;
+      }
 
-        .btn-outline-danger:hover {
-            background-color: #c0392b;
-            color: #fff;
-        }
+      .btn-outline-danger {
+        border-color: #c0392b;
+        color: #c0392b;
+      }
+
+      .btn-outline-danger:hover {
+        background-color: #c0392b;
+        color: #fff;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('partials/header') %>
 
-        <div class="container py-5 mt-5">
-            <h1 class="text-center mb-4">⚙️ Account Settings</h1>
+    <div class="container py-5 mt-5">
+      <h1 class="text-center mb-4">⚙️ Account Settings</h1>
 
-            <!-- ปุ่มสลับ -->
-            <div class="text-center mb-5">
-                <a href="/settings?show=change" class="btn btn-outline-warning me-2">Change Password</a>
-                <a href="/settings?show=delete" class="btn btn-outline-danger">Delete Account</a>
+      <!-- ปุ่มสลับ -->
+      <div class="text-center mb-5">
+        <a href="/settings?show=change" class="btn btn-outline-warning me-2"
+          >Change Password</a
+        >
+        <a href="/settings?show=delete" class="btn btn-outline-danger"
+          >Delete Account</a
+        >
+      </div>
+
+      <% if (show==='change' ) { %>
+      <!-- Change Password -->
+      <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-dark">Change Password</div>
+        <div class="card-body">
+          <form id="changePasswordForm">
+            <div class="mb-3">
+              <label>Old Password</label>
+              <input
+                type="password"
+                name="oldPassword"
+                class="form-control"
+                placeholder="ใส่รหัสผ่านเดิม"
+                required
+              />
             </div>
-
-            <% if (show==='change' ) { %>
-                <!-- Change Password -->
-                <div class="card mb-4 shadow">
-                    <div class="card-header bg-primary text-dark">Change Password</div>
-                    <div class="card-body">
-                        <form id="changePasswordForm">
-                            <div class="mb-3">
-                                <label>Old Password</label>
-                                <input type="password" name="oldPassword" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>New Password</label>
-                                <input type="password" name="newPassword" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Confirm Password</label>
-                                <input type="password" name="confirmPassword" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 mt-3">Change Password</button>
-                        </form>
-                    </div>
-                </div>
-                <% } else if (show==='delete' ) { %>
-                    <!-- Delete Account -->
-                    <div class="card shadow">
-                        <div class="card-header bg-danger text-white">Delete Account</div>
-                        <div class="card-body">
-                            <form id="deleteUserForm">
-                                <div class="mb-3">
-                                    <label>Password</label>
-                                    <input type="password" name="password" class="form-control" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Type 'Confirm' to delete</label>
-                                    <input type="text" name="confirmMessage" class="form-control" placeholder="Confirm"
-                                        required>
-                                </div>
-                                <button type="submit" class="btn btn-danger w-100 mt-3">Delete My Account</button>
-                            </form>
-                        </div>
-                    </div>
-                    <% } %>
+            <div class="mb-3">
+              <label>New Password</label>
+              <input
+                type="password"
+                name="newPassword"
+                class="form-control"
+                placeholder="ใส่รหัสผ่านใหม่"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label>Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                class="form-control"
+                placeholder="ยืนยันรหัสผ่านใหม่"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">
+              Change Password
+            </button>
+          </form>
         </div>
+      </div>
+      <% } else if (show==='delete' ) { %>
+      <!-- Delete Account -->
+      <div class="card shadow">
+        <div class="card-header bg-danger text-white">Delete Account</div>
+        <div class="card-body">
+          <form id="deleteUserForm">
+            <div class="mb-3">
+              <label>Password</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="ใส่รหัสผ่าน"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label>Type 'Confirm' to delete</label>
+              <input
+                type="text"
+                name="confirmMessage"
+                class="form-control"
+                placeholder="Confirm"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-danger w-100 mt-3">
+              Delete My Account
+            </button>
+          </form>
+        </div>
+      </div>
+      <% } %>
+    </div>
 
-        <script>
-            const changeForm = document.getElementById("changePasswordForm");
-            const deleteForm = document.getElementById("deleteUserForm");
+    <script>
+      const changeForm = document.getElementById("changePasswordForm");
+      const deleteForm = document.getElementById("deleteUserForm");
 
-            // Change Password
-            if (changeForm) {
-                changeForm.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-                    const data = Object.fromEntries(new FormData(changeForm));
-                    data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
+      // Change Password
+      if (changeForm) {
+        changeForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(changeForm));
+          data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
 
-                    try {
-                        const res = await fetch("/api/changePassword", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(data),
-                            credentials: "include" // ส่ง cookie/token
-                        });
-                        const json = await res.json();
-                        alert(json.message);
-                    } catch (err) {
-                        alert("Error: " + err.message);
-                    }
-                });
+          try {
+            const res = await fetch("/api/changePassword", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+              credentials: "include", // ส่ง cookie/token
+            });
+            const json = await res.json();
+            alert(json.message);
+          } catch (err) {
+            alert("Error: " + err.message);
+          }
+        });
+      }
+
+      // Delete Account
+      if (deleteForm) {
+        deleteForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!confirm("Are you sure you want to delete your account?")) return;
+
+          const data = Object.fromEntries(new FormData(deleteForm));
+          data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
+
+          try {
+            const res = await fetch("/api/user", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+              credentials: "include", // ส่ง cookie/token
+            });
+            const json = await res.json();
+            alert(json.message);
+
+            if (res.ok) {
+              window.location.href = "/"; // ล้าง cookie/session
             }
+          } catch (err) {
+            alert("Error: " + err.message);
+          }
+        });
+      }
+    </script>
 
-            // Delete Account
-            if (deleteForm) {
-                deleteForm.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-                    if (!confirm("Are you sure you want to delete your account?")) return;
-
-                    const data = Object.fromEntries(new FormData(deleteForm));
-                    data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
-
-                    try {
-                        const res = await fetch("/api/user", {
-                            method: "DELETE",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(data),
-                            credentials: "include" // ส่ง cookie/token
-                        });
-                        const json = await res.json();
-                        alert(json.message);
-
-                        if (res.ok) {
-                            window.location.href = "/"; // ล้าง cookie/session
-                        }
-                    } catch (err) {
-                        alert("Error: " + err.message);
-                    }
-                });
-            }
-        </script>
-
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

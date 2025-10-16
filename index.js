@@ -41,6 +41,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(authMiddleware(undefined, true));
 useWebRoute(router);
 
+app.get("/about", (req, res) => {
+    res.render("about"); // render ไฟล์ about.ejs
+});
 app.use('/', router);
 app.use('/api', router);          // API
 

@@ -1,146 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
+
 <head>
-  <meta charset="UTF-8">
-  <title><%= title %></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #0b0b0b;
-      color: #f1c40f;
-      font-family: 'Prompt', sans-serif;
-      padding-top: 60px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | MouseHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: "Prompt", sans-serif;
+            background: #f5f5f5;
+            color: #000;
+        }
 
-    h2 {
-      font-weight: 600;
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #f1c40f;
-      letter-spacing: 1px;
-    }
+        /* HEADER */
+        .navbar-custom {
+            background-color: #000;
+            padding: 0.8rem 2rem;
+        }
 
-    .table {
-      border-collapse: separate;
-      border-spacing: 0 8px;
-    }
+        .navbar-brand {
+            color: #ffb500 !important;
+            font-weight: 700;
+            text-decoration: none;
+        }
 
-    .table thead {
-      background-color: #1a1a1a;
-      border-bottom: 2px solid #f1c40f;
-    }
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 200px;
+            background-color: #ddd;
+            height: calc(100vh - 70px);
+        }
 
-    .table th {
-      color: #f1c40f;
-      border: none;
-      font-weight: 500;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      letter-spacing: 0.5px;
-    }
+        .sidebar-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #bbb;
+            cursor: pointer;
+        }
 
-    .table tbody tr {
-      background-color: #121212;
-      transition: all 0.2s ease-in-out;
-    }
+        .sidebar-item.active {
+            background-color: #ff8c00;
+            color: #fff;
+        }
 
-    .table tbody tr:hover {
-      background-color: #1f1f1f;
-      transform: scale(1.01);
-    }
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 70px;
+            padding: 20px;
+        }
 
-    .table td {
-      color: #f5f5f5;
-      border: none;
-      vertical-align: middle;
-    }
+        /* TABLE */
+        table {
+            width: 100%;
+            background: #fff;
+            border-collapse: collapse;
+        }
 
-    .table td strong {
-      color: #f1c40f;
-    }
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
 
-    .empty-msg {
-      text-align: center;
-      font-style: italic;
-      color: #777;
-    }
+        th {
+            background-color: #f7f7f7;
+        }
 
-    .container {
-      max-width: 900px;
-      background: #0f0f0f;
-      border: 1px solid #1e1e1e;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 0 25px rgba(241, 196, 15, 0.05);
-    }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-    /* Scrollbar minimal */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #f1c40f;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0b0b0b;
-    }
-  </style>
+        .status-paid {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-unpaid {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
-  <%- include('partials/header') %>
 
-  <div class="container mt-4">
-    <h2>My Orders</h2>
+    <!-- HEADER -->
+    <nav class="navbar navbar-custom fixed-top">
+        <a class="navbar-brand" href="/">🐭 MouseHub</a>
+    </nav>
 
-    <table class="table table-dark align-middle text-center">
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Status</th>
-          <th>Total</th>
-          <th>Created At</th>
-          <th>Items</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (orders.length === 0) { %>
-          <tr>
-            <td colspan="5" class="empty-msg">ยังไม่มีคำสั่งซื้อ</td>
-          </tr>
-        <% } else { %>
-          <% orders.forEach(order => { %>
-            <tr>
-              <td><%= order._id %></td>
-              <td>
-                <% if (order.status === 'Pending') { %>
-                  <span class="badge bg-warning text-dark">รอดำเนินการ</span>
-                <% } else if (order.status === 'Completed') { %>
-                  <span class="badge bg-success">เสร็จสิ้น</span>
-                <% } else { %>
-                  <span class="badge bg-secondary"><%= order.status %></span>
-                <% } %>
-              </td>
-              <td><%= order.total %> ฿</td>
-              <td><%= new Date(order.createdAt).toLocaleString() %></td>
-              <td>
-                <ul class="list-unstyled mb-0">
-                  <% order.items.forEach(item => { %>
-                    <li>
-                      <strong><%= item.productName %></strong>
-                      × <%= item.quantity %> = <%= item.price %> ฿
-                    </li>
-                  <% }) %>
-                </ul>
-              </td>
-            </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-item active">My Orders</div>
+        <div class="sidebar-item" onclick="logout()">Logout</div>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <h2>คำสั่งซื้อของฉัน</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Item</th>
+                        <th>Total (บาท)</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                        <th>Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody id="orderBody">
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">กำลังโหลดคำสั่งซื้อ...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ฟังก์ชันโหลดออเดอร์ของผู้ใช้ปัจจุบัน
+        async function getOrdersByUserId() {
+            const tbody = document.getElementById("orderBody");
+
+            try {
+                const res = await fetch("/api/orders"); // endpoint ของผู้ใช้ปัจจุบัน
+                const orders = await res.json();
+
+                if (!Array.isArray(orders) || orders.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>ไม่มีคำสั่งซื้อ</td></tr>";
+                    return;
+                }
+
+                tbody.innerHTML = orders.map(order => {
+                    const date = new Date(order.createdAt);
+                    const formattedDate = `${String(date.getDate()).padStart(2,"0")}/${String(date.getMonth()+1).padStart(2,"0")}/${date.getFullYear()}`;
+
+                    return `
+                        <tr>
+                            <td>${order._id}</td>
+                            <td>${order.items.map(i => i.name).join(", ")}</td>
+                            <td>${order.totalAmount.toFixed(2)} ฿</td>
+                            <td>${order.shippingAddress}</td>
+                            <td>${order.status}</td>
+                            <td class="${order.paymentStatus==='paid' ? 'status-paid' : 'status-unpaid'}">
+                                ${order.paymentStatus==='paid' ? 'ชำระแล้ว' : 'ยังไม่ชำระ'}
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
+            } catch (err) {
+                console.error("❌ โหลดข้อมูลล้มเหลว:", err);
+                tbody.innerHTML = "<tr><td colspan='6' class='text-center text-danger'>โหลดข้อมูลไม่สำเร็จ</td></tr>";
+            }
+        }
+
+        // เรียกโหลดออเดอร์เมื่อหน้าเพจเปิด
+        getOrdersByUserId();
+
+        // ฟังก์ชัน logout
+        async function logout() {
+            if (!confirm("คุณต้องการออกจากระบบหรือไม่?")) return;
+
+            try {
+                const response = await fetch("/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+
+                if (response.ok) {
+                    alert("ออกจากระบบเรียบร้อยแล้ว");
+                    window.location.href = "/";
+                } else {
+                    alert("ไม่สามารถออกจากระบบได้ กรุณาลองใหม่อีกครั้ง");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                alert("เกิดข้อผิดพลาดขณะออกจากระบบ");
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

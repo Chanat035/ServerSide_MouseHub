@@ -32,6 +32,20 @@ const deleteUserSchema = z.object({
   confirmMessage: z.string(),
 });
 
+const updateUserSchema = z.object({
+  name: z.string(),
+  password: z.string(),
+  updates: z.object({
+    name: z.string().optional(),
+    email: z.string().email("Invalid email").optional(),
+    phone: z.string().min(10, "Phone must have at least 10 digits").optional(),
+    address: z
+      .string()
+      .min(5, "Address must have at least 5 characters")
+      .optional(),
+  }),
+});
+
 const userController = {
   getAllUsers: async (req, res) => {
     const users = await userService.getAllUsers();
@@ -40,9 +54,13 @@ const userController = {
 
   profile: async (req, res) => {
     try {
-      const { Id } = req.body;
+      const token = req.cookies.token;
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
-      const user = await userService.getUserById(Id);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await userService.getUserById(decoded.userId);
 
       if (!user) {
         return res.status(404).json({
@@ -67,12 +85,13 @@ const userController = {
 
   register: async (req, res) => {
     try {
-      const { name, email, phone, address, password, confirmPassword } = req.body;
+      const { name, email, phone, address, password, confirmPassword } =
+        req.body;
 
       if (password !== confirmPassword) {
         return res.status(400).render("index", {
           title: "หน้าแรก MouseHub",
-          registerError: "Password not match"
+          registerError: "Password not match",
         });
       }
 
@@ -80,7 +99,7 @@ const userController = {
       if (existingUser) {
         return res.status(400).render("index", {
           title: "หน้าแรก MouseHub",
-          registerError: "Username is already registered"
+          registerError: "Username is already registered",
         });
       }
 
@@ -88,7 +107,7 @@ const userController = {
       if (existingEmail) {
         return res.status(400).render("index", {
           title: "หน้าแรก MouseHub",
-          registerError: "Email is already registered"
+          registerError: "Email is already registered",
         });
       }
 
@@ -96,17 +115,16 @@ const userController = {
       await userService.register(name, email, phone, address, hashedPassword);
 
       return res.status(201).redirect("/", {
-        message: "User registered successfully!"
+        message: "User registered successfully!",
       });
     } catch (error) {
       console.error(error);
       return res.status(500).render("index", {
         title: "หน้าแรก MouseHub",
-        registerError: "Internal server error"
+        registerError: "Internal server error",
       });
     }
   },
-
 
   login: async (req, res) => {
     try {
@@ -114,12 +132,16 @@ const userController = {
 
       const user = await userService.getUserByUsername(name);
       if (!user) {
-        return res.status(401).render('index', { loginError: 'Username or password incorrect' });
+        return res
+          .status(401)
+          .render("index", { loginError: "Username or password incorrect" });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(401).render('index', { loginError: 'Username or password incorrect' });
+        return res
+          .status(401)
+          .render("index", { loginError: "Username or password incorrect" });
       }
 
       if (user.isDeleted !== null) {
@@ -129,19 +151,26 @@ const userController = {
       }
 
       const jwt_secret = process.env.JWT_SECRET;
-      const payload = { username: user.name, userId: user.id, role: user.role, balance: user.balance};
-      const token = jwt.sign(payload, jwt_secret, { expiresIn: '7d' });
+      const payload = {
+        username: user.name,
+        userId: user.id,
+        role: user.role,
+        balance: user.balance,
+      };
+      const token = jwt.sign(payload, jwt_secret, { expiresIn: "7d" });
 
-      res.cookie('token', token, {
+      res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return res.redirect('/');
+      return res.redirect("/");
     } catch (error) {
-      return res.status(500).render('index', { loginError: 'Internal server error' });
+      return res
+        .status(500)
+        .render("index", { loginError: "Internal server error" });
     }
   },
 
@@ -153,12 +182,13 @@ const userController = {
         sameSite: "strict",
       });
 
-      return res.status(200).redirect('/');
+      return res.status(200).redirect("/");
     } catch (error) {
-      return res.status(500).render('index', { registerError: "Internal server error" });
+      return res
+        .status(500)
+        .render("index", { registerError: "Internal server error" });
     }
   },
-
 
   changePassword: async (req, res) => {
     try {
@@ -193,6 +223,46 @@ const userController = {
       return res.status(200).json({
         message: "Password changed successfully.",
         user: changedPassword.password,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const { name, password, updates } = req.body;
+
+      // ตรวจสอบ token และ username ให้ตรงกัน
+      if (!req.user || req.user.username !== name) {
+        return res.status(403).json({
+          message: "You are not authorized to update this profile",
+        });
+      }
+
+      const user = await userService.getUserByUsername(name);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Incorrect password" });
+      }
+
+      const updatedUser = await userService.updateUserProfile(user, updates);
+
+      return res.status(200).json({
+        message: "Profile updated successfully",
+        updatedProfile: {
+          name: updatedUser.name,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          address: updatedUser.address,
+        },
       });
     } catch (error) {
       return res.status(500).json({
@@ -290,5 +360,6 @@ export {
   userRegistrationSchema,
   changePasswordSchema,
   deleteUserSchema,
+  updateUserSchema,
 };
 export default userController;

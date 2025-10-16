@@ -3,6 +3,7 @@ import userController, {
   userRegistrationSchema,
   changePasswordSchema,
   deleteUserSchema,
+  updateUserSchema,
 } from "../controllers/userControllers.js";
 import validateData from "../middleware/validationMiddleware.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -225,6 +226,58 @@ const useUserRoute = async (router) => {
     "/changePassword",
     validateData(changePasswordSchema),
     userController.changePassword
+  );
+
+  /**
+   * @swagger
+   * /api/updateUser:
+   *   patch:
+   *     summary: Update user profile
+   *     description: Update the logged-in user's profile (except balance). Requires current password for verification.
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [name, password, updates]
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 example: johndoe
+   *               password:
+   *                 type: string
+   *                 example: P@ssw0rd!
+   *               updates:
+   *                 type: object
+   *                 properties:
+   *                   email:
+   *                     type: string
+   *                     example: john.new@example.com
+   *                   phone:
+   *                     type: string
+   *                     example: "0811111111"
+   *                   address:
+   *                     type: string
+   *                     example: "456 Chiang Mai, Thailand"
+   *     responses:
+   *       200:
+   *         description: Profile updated successfully
+   *       400:
+   *         description: Invalid input or incorrect password
+   *       403:
+   *         description: Unauthorized (username mismatch)
+   *       404:
+   *         description: User not found
+   */
+  router.patch(
+    "/updateUser",
+    validateData(updateUserSchema),
+    authMiddleware(),
+    userController.updateUser
   );
 
   /**

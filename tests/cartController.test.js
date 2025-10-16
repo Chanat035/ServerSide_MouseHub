@@ -1,21 +1,28 @@
 import cartController from "../controllers/cartController.js";
 import cartService from "../services/cartService.js";
 import productService from "../services/productService.js";
+import jwt from "jsonwebtoken";
 
 jest.mock("../services/cartService.js");
 jest.mock("../services/productService.js");
+jest.mock("jsonwebtoken");
 
 describe("cartController", () => {
   let req, res;
 
   beforeEach(() => {
-    req = { user: { id: "user1" }, body: {} };
-    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    req = { user: { id: "user1" }, body: {}, cookies: {} };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      render: jest.fn(),
+      redirect: jest.fn(),
+    };
     jest.clearAllMocks();
   });
 
   // ✅ getCart
-  test("should return 200 and cart items (mouse products)", async () => {
+  test("should return 200 and cart items", async () => {
     const mockCart = {
       items: [{ name: "Logitech MX Master 3S", quantity: 1 }],
     };
@@ -27,9 +34,12 @@ describe("cartController", () => {
     expect(res.json).toHaveBeenCalledWith(mockCart.items);
   });
 
-  // ✅ addToCart success
-  test("should add mouse to cart successfully", async () => {
+  // ✅ addToCart success (simulate valid token)
+  test("should add product to cart successfully", async () => {
     req.body = { productId: "mouse1", quantity: 2 };
+    req.cookies = { token: "fakeToken" };
+    jwt.verify.mockReturnValue({ userId: "user1" });
+
     const updatedCart = {
       items: [{ name: "Razer DeathAdder V3", quantity: 2 }],
     };
@@ -47,6 +57,8 @@ describe("cartController", () => {
   // ❌ addToCart missing fields
   test("should return 400 if productId or quantity missing", async () => {
     req.body = { productId: null, quantity: null };
+    req.cookies = { token: "fakeToken" };
+    jwt.verify.mockReturnValue({ userId: "user1" });
 
     await cartController.addToCart(req, res);
 
@@ -57,7 +69,7 @@ describe("cartController", () => {
   });
 
   // ❌ updateCart invalid quantity
-  test("should return 400 if quantity is 0", async () => {
+  test("should return 400 if quantity <= 0", async () => {
     req.body = { productId: "mouse2", quantity: 0 };
     productService.getProductById.mockResolvedValue({ name: "Mouse" });
 
@@ -70,12 +82,10 @@ describe("cartController", () => {
   });
 
   // ✅ updateCart success
-  test("should update cart when mouse quantity valid", async () => {
+  test("should update cart successfully", async () => {
     req.body = { productId: "mouse3", quantity: 1 };
     const mockProduct = { id: "mouse3", name: "SteelSeries Prime Mini", quantity: 5 };
-    const mockCart = {
-      items: [{ name: "SteelSeries Prime Mini", quantity: 1 }],
-    };
+    const mockCart = { items: [{ name: "SteelSeries Prime Mini", quantity: 1 }] };
     productService.getProductById.mockResolvedValue(mockProduct);
     cartService.updateCart.mockResolvedValue(mockCart);
 
@@ -86,11 +96,9 @@ describe("cartController", () => {
   });
 
   // ✅ removeFromCart
-  test("should remove mouse from cart successfully", async () => {
+  test("should remove product from cart successfully", async () => {
     req.body = { productId: "mouseX" };
-    const mockCart = {
-      items: [{ name: "Glorious Model D", quantity: 1 }],
-    };
+    const mockCart = { items: [{ name: "Glorious Model D", quantity: 1 }] };
     cartService.removeFromCart.mockResolvedValue(mockCart);
 
     await cartController.removeFromCart(req, res);

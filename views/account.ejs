@@ -13,100 +13,67 @@
         color: #f1c40f;
         font-family: "Poppins", sans-serif;
       }
-
       h1 {
         font-weight: 600;
         color: #f1c40f;
       }
-
-      input.form-control::placeholder {
-        color: #ffffff;
-        opacity: 60%;
-      }
-
       .card {
         background-color: #1a1a1a;
         border: 1px solid #333;
         border-radius: 12px;
         color: #fff;
       }
-
-      .card-header {
-        font-weight: 500;
-        border-bottom: none;
+      .card-header.bg-primary {
+        background-color: #f1c40f !important;
+        color: #000 !important;
       }
-
       .form-control {
         background-color: #111;
         border: 1px solid #444;
         color: #f1c40f;
       }
-
       .form-control:focus {
         background-color: #111;
         border-color: #f1c40f;
         box-shadow: 0 0 5px #f1c40f33;
         color: #fff;
       }
-
       .btn-primary {
         background-color: #f1c40f;
         color: #000;
         border: none;
         font-weight: 600;
       }
-
       .btn-primary:hover {
         background-color: #d4ac0d;
         color: #000;
       }
-
       .btn-danger {
         background-color: #c0392b;
         border: none;
         font-weight: 600;
       }
-
       .btn-danger:hover {
         background-color: #e74c3c;
       }
-
-      .card-header.bg-primary {
-        background-color: #f1c40f !important;
-        color: #000 !important;
-      }
-
-      .card-header.bg-danger {
-        background-color: #c0392b !important;
-        color: #fff !important;
-      }
-
-      .container {
-        max-width: 600px;
-      }
-
-      input[readonly] {
-        opacity: 0.8;
-      }
-
       .btn-outline-warning {
         border-color: #f1c40f;
         color: #f1c40f;
       }
-
       .btn-outline-warning:hover {
         background-color: #f1c40f;
         color: #000;
       }
-
       .btn-outline-danger {
         border-color: #c0392b;
         color: #c0392b;
       }
-
       .btn-outline-danger:hover {
         background-color: #c0392b;
         color: #fff;
+      }
+      .container {
+        max-width: 600px;
       }
     </style>
   </head>
@@ -119,6 +86,9 @@
 
       <!-- ปุ่มสลับ -->
       <div class="text-center mb-5">
+        <a href="/settings?show=detail" class="btn btn-outline-warning me-2"
+          >Account Detail</a
+        >
         <a href="/settings?show=change" class="btn btn-outline-warning me-2"
           >Change Password</a
         >
@@ -127,7 +97,15 @@
         >
       </div>
 
-      <% if (show==='change' ) { %>
+      <% if (show === 'detail') { %>
+      <!-- ✅ Account Detail -->
+      <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-dark">Account Detail</div>
+        <div class="card-body" id="accountDetail">
+          <p class="text-center">Loading profile...</p>
+        </div>
+      </div>
+      <% } else if (show === 'change') { %>
       <!-- Change Password -->
       <div class="card mb-4 shadow">
         <div class="card-header bg-primary text-dark">Change Password</div>
@@ -169,7 +147,7 @@
           </form>
         </div>
       </div>
-      <% } else if (show==='delete' ) { %>
+      <% } else if (show === 'delete') { %>
       <!-- Delete Account -->
       <div class="card shadow">
         <div class="card-header bg-danger text-white">Delete Account</div>
@@ -204,23 +182,126 @@
       <% } %>
     </div>
 
+    <!-- ✅ Script ส่วน Account Detail -->
+    <% if (show === 'detail') { %>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const container = document.getElementById("accountDetail");
+
+        try {
+          const res = await fetch("/api/profile", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            container.innerHTML = `<p class="text-danger text-center">${
+              data.message || "Error loading profile"
+            }</p>`;
+            return;
+          }
+
+          // ✅ แสดงฟอร์มสำหรับแก้ไขข้อมูล
+          container.innerHTML = `
+        <form id="updateUserForm">
+          <div class="mb-3">
+            <label>Username</label>
+            <input type="text" name="name" class="form-control" value="${
+              data.username
+            }" readonly />
+          </div>
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" value="${
+              data.email
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" value="${
+              data.phone
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Address</label>
+            <input type="text" name="address" class="form-control" value="${
+              data.address
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Balance</label>
+            <input type="text" class="form-control" value="${
+              data.balance ?? 0
+            } ฿" disabled />
+          </div>
+          <div class="mb-3">
+            <label>Enter Password to Confirm</label>
+            <input type="password" name="password" class="form-control" placeholder="ใส่รหัสผ่านเพื่อยืนยัน" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100 mt-3">Save Changes</button>
+        </form>
+      `;
+
+          // ✅ ฟังก์ชันอัปเดตข้อมูล
+          const form = document.getElementById("updateUserForm");
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const password = formData.get("password");
+            const name = formData.get("name");
+            const updates = {
+              email: formData.get("email"),
+              phone: formData.get("phone"),
+              address: formData.get("address"),
+            };
+
+            const payload = { name, password, updates };
+
+            try {
+              const res = await fetch("/api/updateUser", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                credentials: "include",
+              });
+
+              const result = await res.json();
+              if (res.ok) {
+                alert("✅ " + result.message);
+              } else {
+                alert("❌ " + (result.message || "Update failed"));
+              }
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+          });
+        } catch (err) {
+          container.innerHTML = `<p class="text-danger text-center">Error: ${err.message}</p>`;
+        }
+      });
+    </script>
+    <% } %>
+
     <script>
       const changeForm = document.getElementById("changePasswordForm");
       const deleteForm = document.getElementById("deleteUserForm");
 
-      // Change Password
       if (changeForm) {
         changeForm.addEventListener("submit", async (e) => {
           e.preventDefault();
           const data = Object.fromEntries(new FormData(changeForm));
-          data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
+          data.name = "<%= user.username %>";
 
           try {
             const res = await fetch("/api/changePassword", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
-              credentials: "include", // ส่ง cookie/token
+              credentials: "include",
             });
             const json = await res.json();
             alert(json.message);
@@ -230,28 +311,23 @@
         });
       }
 
-      // Delete Account
       if (deleteForm) {
         deleteForm.addEventListener("submit", async (e) => {
           e.preventDefault();
           if (!confirm("Are you sure you want to delete your account?")) return;
-
           const data = Object.fromEntries(new FormData(deleteForm));
-          data.name = "<%= user.username %>"; // ✅ ส่งชื่อผู้ใช้ที่ login
+          data.name = "<%= user.username %>";
 
           try {
             const res = await fetch("/api/user", {
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
-              credentials: "include", // ส่ง cookie/token
+              credentials: "include",
             });
             const json = await res.json();
             alert(json.message);
-
-            if (res.ok) {
-              window.location.href = "/"; // ล้าง cookie/session
-            }
+            if (res.ok) window.location.href = "/";
           } catch (err) {
             alert("Error: " + err.message);
           }
@@ -259,6 +335,9 @@
       }
     </script>
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
   </body>
 </html>

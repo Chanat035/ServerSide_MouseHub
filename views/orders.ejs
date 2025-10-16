@@ -2,195 +2,136 @@
 <html lang="th">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> | MouseHub</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: "Prompt", sans-serif;
-            background: #f5f5f5;
-            color: #000;
-        }
-
-        /* HEADER */
-        .navbar-custom {
-            background-color: #000;
-            padding: 0.8rem 2rem;
-        }
-
-        .navbar-brand {
-            color: #ffb500 !important;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 200px;
-            background-color: #ddd;
-            height: calc(100vh - 70px);
-        }
-
-        .sidebar-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #bbb;
-            cursor: pointer;
-        }
-
-        .sidebar-item.active {
-            background-color: #ff8c00;
-            color: #fff;
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            margin-left: 200px;
-            margin-top: 70px;
-            padding: 20px;
-        }
-
-        /* TABLE */
-        table {
-            width: 100%;
-            background: #fff;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f7f7f7;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .status-paid {
-            color: green;
-            font-weight: bold;
-        }
-
-        .status-unpaid {
-            color: red;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders | MouseHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <body>
+  <!-- รวม header -->
+  <%- include('partials/header') %>
 
-    <!-- HEADER -->
-    <nav class="navbar navbar-custom fixed-top">
-        <a class="navbar-brand" href="/">🐭 MouseHub</a>
-    </nav>
+  <main class="container mt-5 pt-4 text-light">
+    <h2 class="text-warning mb-4">คำสั่งซื้อของฉัน</h2>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="sidebar-item active">My Orders</div>
-        <div class="sidebar-item" onclick="logout()">Logout</div>
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>วันที่สั่งซื้อ</th>
+            <th>รวมทั้งหมด (บาท)</th>
+            <th>สถานะ</th>
+            <th>การชำระเงิน</th>
+            <th>ดูสินค้า</th>
+          </tr>
+        </thead>
+        <tbody id="orderBody">
+          <tr>
+            <td colspan="6" class="text-center text-muted">กำลังโหลดคำสั่งซื้อ...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </main>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-        <h2>คำสั่งซื้อของฉัน</h2>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Item</th>
-                        <th>Total (บาท)</th>
-                        <th>Address</th>
-                        <th>Status</th>
-                        <th>Payment Status</th>
-                    </tr>
-                </thead>
-                <tbody id="orderBody">
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">กำลังโหลดคำสั่งซื้อ...</td>
-                    </tr>
-                </tbody>
-            </table>
+  <!-- Modal แสดงรายละเอียดสินค้า -->
+  <div class="modal fade" id="orderItemsModal" tabindex="-1" aria-labelledby="orderItemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning" id="orderItemsModalLabel">รายละเอียดสินค้าในคำสั่งซื้อ</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <div id="orderItemsContainer" class="table-responsive">
+            <table class="table table-dark table-striped">
+              <thead>
+                <tr>
+                  <th>ชื่อสินค้า</th>
+                  <th>ราคา (บาท)</th>
+                  <th>จำนวน</th>
+                  <th>รวม</th>
+                </tr>
+              </thead>
+              <tbody id="orderItemsBody">
+                <tr>
+                  <td colspan="4" class="text-center text-muted">กำลังโหลด...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // ฟังก์ชันโหลดออเดอร์ของผู้ใช้ปัจจุบัน
-        async function getOrdersByUserId() {
-            const tbody = document.getElementById("orderBody");
+  <script>
+    async function getOrdersByUserId() {
+      const tbody = document.getElementById("orderBody");
 
-            try {
-                const res = await fetch("/api/orders"); // endpoint ของผู้ใช้ปัจจุบัน
-                const orders = await res.json();
+      try {
+        const res = await fetch("/api/orders");
+        const orders = await res.json();
 
-                if (!Array.isArray(orders) || orders.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>ไม่มีคำสั่งซื้อ</td></tr>";
-                    return;
-                }
-
-                tbody.innerHTML = orders.map(order => {
-                    const date = new Date(order.createdAt);
-                    const formattedDate = `${String(date.getDate()).padStart(2,"0")}/${String(date.getMonth()+1).padStart(2,"0")}/${date.getFullYear()}`;
-
-                    return `
-                        <tr>
-                            <td>${order._id}</td>
-                            <td>${order.items.map(i => i.name).join(", ")}</td>
-                            <td>${order.totalAmount.toFixed(2)} ฿</td>
-                            <td>${order.shippingAddress}</td>
-                            <td>${order.status}</td>
-                            <td class="${order.paymentStatus==='paid' ? 'status-paid' : 'status-unpaid'}">
-                                ${order.paymentStatus==='paid' ? 'ชำระแล้ว' : 'ยังไม่ชำระ'}
-                            </td>
-                        </tr>
-                    `;
-                }).join("");
-
-            } catch (err) {
-                console.error("❌ โหลดข้อมูลล้มเหลว:", err);
-                tbody.innerHTML = "<tr><td colspan='6' class='text-center text-danger'>โหลดข้อมูลไม่สำเร็จ</td></tr>";
-            }
+        if (!Array.isArray(orders) || orders.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>ไม่มีคำสั่งซื้อ</td></tr>";
+          return;
         }
 
-        // เรียกโหลดออเดอร์เมื่อหน้าเพจเปิด
-        getOrdersByUserId();
+        tbody.innerHTML = orders.map(order => {
+          const date = new Date(order.createdAt);
+          const formattedDate = `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
 
-        // ฟังก์ชัน logout
-        async function logout() {
-            if (!confirm("คุณต้องการออกจากระบบหรือไม่?")) return;
+          return `
+            <tr>
+              <td>${order._id}</td>
+              <td>${formattedDate}</td>
+              <td>${order.totalAmount.toFixed(2)} ฿</td>
+              <td>${order.status}</td>
+              <td class="${order.paymentStatus === 'paid' ? 'text-success fw-bold' : 'text-danger fw-bold'}">
+                ${order.paymentStatus === 'paid' ? 'ชำระแล้ว' : 'ยังไม่ชำระ'}
+              </td>
+              <td><button class="btn btn-sm btn-warning" onclick='showOrderItems(${JSON.stringify(order.items)})'>ดูสินค้า</button></td>
+            </tr>
+          `;
+        }).join("");
 
-            try {
-                const response = await fetch("/logout", {
-                    method: "POST",
-                    credentials: "include"
-                });
+      } catch (err) {
+        console.error("❌ โหลดข้อมูลล้มเหลว:", err);
+        tbody.innerHTML = "<tr><td colspan='6' class='text-center text-danger'>โหลดข้อมูลไม่สำเร็จ</td></tr>";
+      }
+    }
 
-                if (response.ok) {
-                    alert("ออกจากระบบเรียบร้อยแล้ว");
-                    window.location.href = "/";
-                } else {
-                    alert("ไม่สามารถออกจากระบบได้ กรุณาลองใหม่อีกครั้ง");
-                }
-            } catch (error) {
-                console.error("Logout error:", error);
-                alert("เกิดข้อผิดพลาดขณะออกจากระบบ");
-            }
-        }
-    </script>
+    function showOrderItems(items) {
+      const tbody = document.getElementById("orderItemsBody");
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      if (!items || items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่มีสินค้า</td></tr>`;
+      } else {
+        tbody.innerHTML = items.map(i => `
+          <tr>
+            <td>${i.name}</td>
+            <td>${i.price.toFixed(2)}</td>
+            <td>${i.quantity}</td>
+            <td>${(i.price * i.quantity).toFixed(2)}</td>
+          </tr>
+        `).join("");
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById("orderItemsModal"));
+      modal.show();
+    }
+
+    getOrdersByUserId();
+  </script>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
 </body>
 
 </html>

@@ -31,6 +31,17 @@ const userService = {
     user.password = newPassword;
     return await user.save();
   },
+
+  updateUserProfile: async (user, updates) => {
+    const allowedFields = ["name", "email", "phone", "address"];
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        user[field] = updates[field];
+      }
+    }
+    return await user.save();
+  },
+
   deleteUser: async (user) => {
     user.isDeleted = new Date();
     return await user.save();

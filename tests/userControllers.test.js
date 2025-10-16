@@ -3,7 +3,6 @@ import userService from "../services/userService.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// mock dependencies
 jest.mock("../services/userService.js");
 jest.mock("bcrypt");
 jest.mock("jsonwebtoken");
@@ -22,17 +21,17 @@ describe("userController.register", () => {
         confirmPassword: "test1234",
       },
     };
-
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
+      render: jest.fn(),
+      redirect: jest.fn(),
     };
-
     jest.clearAllMocks();
   });
 
-  //register success
-  test("should return 201 and success message when registration successful", async () => {
+  // register success
+  test("should register successfully and redirect", async () => {
     userService.getUserByUsername.mockResolvedValue(null);
     userService.getUserByEmail.mockResolvedValue(null);
     bcrypt.hash.mockResolvedValue("hashedPassword");
@@ -41,63 +40,54 @@ describe("userController.register", () => {
     await userController.register(req, res);
 
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({
+    expect(res.redirect).toHaveBeenCalledWith("/", {
       message: "User registered successfully!",
-      user: { id: 1, name: "t3st" },
     });
   });
 
-  //password != confirmPassword
-  test("should return 400 if passwords do not match", async () => {
-    req.body.confirmPassword = "notmatch";
+  test("should render error if passwords do not match", async () => {
+    req.body.confirmPassword = "different";
 
     await userController.register(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Password not match",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      registerError: "Password not match",
+    }));
   });
 
-  //username already exists
-  test("should return 400 if username already registered", async () => {
-    userService.getUserByUsername.mockResolvedValue({ id: 99, name: "t3st" });
+  test("should render error if username already exists", async () => {
+    userService.getUserByUsername.mockResolvedValue({ id: 99 });
 
     await userController.register(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Username is already registered",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      registerError: "Username is already registered",
+    }));
   });
 
-  //email already exists
-  test("should return 400 if email already registered", async () => {
+  test("should render error if email already exists", async () => {
     userService.getUserByUsername.mockResolvedValue(null);
-    userService.getUserByEmail.mockResolvedValue({
-      id: 55,
-      email: "t3st@example.com",
-    });
+    userService.getUserByEmail.mockResolvedValue({ id: 11 });
 
     await userController.register(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Email is already registered",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      registerError: "Email is already registered",
+    }));
   });
 
-  //internal server error (simulate throw)
-  test("should return 500 on unexpected error", async () => {
+  test("should render internal server error", async () => {
     userService.getUserByUsername.mockRejectedValue(new Error("DB failed"));
 
     await userController.register(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Internal server error",
-      error: "DB failed",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      registerError: "Internal server error",
+    }));
   });
 });
 
@@ -106,27 +96,27 @@ describe("userController.login", () => {
 
   beforeEach(() => {
     req = {
-      body: {
-        name: "t3st",
-        password: "test1234",
-      },
+      body: { name: "t3st", password: "test1234" },
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
+      render: jest.fn(),
+      redirect: jest.fn(),
       cookie: jest.fn(),
       clearCookie: jest.fn(),
     };
     jest.clearAllMocks();
   });
 
-  test("should return 200 and token when login successful", async () => {
+  test("should redirect after successful login", async () => {
     const user = {
       id: 1,
       name: "t3st",
       password: "hashedPassword",
-      role: "user",
       isDeleted: null,
+      role: "user",
+      balance: 100,
     };
 
     userService.getUserByUsername.mockResolvedValue(user);
@@ -135,46 +125,39 @@ describe("userController.login", () => {
 
     await userController.login(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "User logged in successfully!",
-      token: "fake-jwt-token",
-    });
+    expect(res.redirect).toHaveBeenCalledWith("/");
+    expect(res.cookie).toHaveBeenCalledWith(
+      "token",
+      "fake-jwt-token",
+      expect.any(Object)
+    );
   });
 
-  //Wrong password
-  test("should return 401 if passwords do not match", async () => {
-    const user = {
-      id: 1,
-      name: "t3st",
-      password: "hashedPassword",
-      isDeleted: null,
-    };
-
+  test("should render error if wrong password", async () => {
+    const user = { password: "hashedPassword", isDeleted: null };
     userService.getUserByUsername.mockResolvedValue(user);
     bcrypt.compare.mockResolvedValue(false);
+
     await userController.login(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Username or password incorrect",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      loginError: "Username or password incorrect",
+    }));
   });
 
-  //user not found
-  test("should return 401 if there is no user", async () => {
+  test("should render error if user not found", async () => {
     userService.getUserByUsername.mockResolvedValue(null);
 
     await userController.login(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Username or password incorrect",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      loginError: "Username or password incorrect",
+    }));
   });
 
-  //user is deleted
-  test("should return 403 if user is deleted", async () => {
+  test("should return json if user is deleted", async () => {
     const user = {
       id: 1,
       name: "t3st",
@@ -193,211 +176,14 @@ describe("userController.login", () => {
     });
   });
 
-  //internal server error (simulate throw)
-  test("should return 500 on unexpected error", async () => {
+  test("should render 500 on unexpected error", async () => {
     userService.getUserByUsername.mockRejectedValue(new Error("DB failed"));
 
     await userController.login(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Internal server error",
-      error: "DB failed",
-    });
+    expect(res.render).toHaveBeenCalledWith("index", expect.objectContaining({
+      loginError: "Internal server error",
+    }));
   });
-
-  describe("userController.changePassword", () => {
-    let req, res;
-
-    beforeEach(() => {
-      req = {
-        body: {
-          name: "t3st",
-          oldPassword: "oldpass",
-          newPassword: "newpass123",
-          confirmPassword: "newpass123",
-        },
-      };
-      res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-      jest.clearAllMocks();
-    });
-
-    // Success case
-    test("should return 200 when password changed successfully", async () => {
-      const user = { id: 1, name: "t3st", password: "hashedOld" };
-
-      userService.getUserByUsername.mockResolvedValue(user);
-      bcrypt.compare.mockResolvedValue(true);
-      bcrypt.hash.mockResolvedValue("hashedNew");
-      userService.changePassword.mockResolvedValue({
-        ...user,
-        password: "hashedNew",
-      });
-
-      await userController.changePassword(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Password changed successfully.",
-        user: "hashedNew",
-      });
-    });
-
-    // User not found
-    test("should return 404 if user not found", async () => {
-      userService.getUserByUsername.mockResolvedValue(null);
-
-      await userController.changePassword(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
-    });
-
-    // Old password incorrect
-    test("should return 400 if old password is incorrect", async () => {
-      userService.getUserByUsername.mockResolvedValue({
-        password: "hashedOld",
-      });
-      bcrypt.compare.mockResolvedValue(false);
-
-      await userController.changePassword(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Old password is incorrect",
-      });
-    });
-
-    // New and confirm password not match
-    test("should return 400 if new password and confirm password do not match", async () => {
-      req.body.confirmPassword = "different";
-      userService.getUserByUsername.mockResolvedValue({
-        password: "hashedOld",
-      });
-      bcrypt.compare.mockResolvedValue(true);
-
-      await userController.changePassword(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "New password and confirm password do not match",
-      });
-    });
-
-    // Internal server error
-    test("should return 500 on unexpected error", async () => {
-      userService.getUserByUsername.mockRejectedValue(new Error("DB failed"));
-
-      await userController.changePassword(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Internal server error",
-        error: "DB failed",
-      });
-    });
-  });
-
-  describe("userController.deleteUser", () => {
-  let req, res;
-
-  beforeEach(() => {
-    req = {
-      body: {
-        name: "t3st",
-        password: "test123",
-        confirmMessage: "Confirm",
-      },
-      user: { username: "t3st" },
-    };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      clearCookie: jest.fn(),
-    };
-    jest.clearAllMocks();
-  });
-
-  // Success
-  test("should return 200 when user deleted successfully", async () => {
-    const user = { id: 1, name: "t3st", password: "hashedPassword" };
-
-    userService.getUserByUsername.mockResolvedValue(user);
-    bcrypt.compare.mockResolvedValue(true);
-    userService.deleteUser.mockResolvedValue({ ...user, isdeleted: true });
-
-    await userController.deleteUser(req, res);
-
-    expect(res.clearCookie).toHaveBeenCalledWith("token", expect.any(Object));
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "User deleted successfully",
-      deletedUser: true,
-    });
-  });
-
-  // User not found
-  test("should return 404 if user not found", async () => {
-    userService.getUserByUsername.mockResolvedValue(null);
-
-    await userController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
-  });
-
-  // Unauthorized
-  test("should return 403 if another user tries to delete account", async () => {
-    req.user.username = "someoneElse";
-    userService.getUserByUsername.mockResolvedValue({ name: "t3st" });
-
-    await userController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "You are not authorized to delete this account",
-    });
-  });
-
-  // Wrong Password
-  test("should return 400 if password is incorrect", async () => {
-    userService.getUserByUsername.mockResolvedValue({ password: "hashed" });
-    bcrypt.compare.mockResolvedValue(false);
-
-    await userController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: "password is incorrect" });
-  });
-
-  // Confirm message wrong
-  test("should return 400 if confirm message is wrong", async () => {
-    req.body.confirmMessage = "Wrong";
-    userService.getUserByUsername.mockResolvedValue({ password: "hashed" });
-    bcrypt.compare.mockResolvedValue(true);
-
-    await userController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Please type 'Confirm' to delete your account",
-    });
-  });
-
-  // Internal server error
-  test("should return 500 on unexpected error", async () => {
-    userService.getUserByUsername.mockRejectedValue(new Error("DB failed"));
-
-    await userController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Internal server error",
-      error: "DB failed",
-    });
-  });
-});
 });

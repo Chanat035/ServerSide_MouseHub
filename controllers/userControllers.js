@@ -32,6 +32,20 @@ const deleteUserSchema = z.object({
   confirmMessage: z.string(),
 });
 
+const updateUserSchema = z.object({
+  name: z.string(),
+  password: z.string(),
+  updates: z.object({
+    name: z.string().optional(),
+    email: z.string().email("Invalid email").optional(),
+    phone: z.string().min(10, "Phone must have at least 10 digits").optional(),
+    address: z
+      .string()
+      .min(5, "Address must have at least 5 characters")
+      .optional(),
+  }),
+});
+
 const userController = {
   getAllUsers: async (req, res) => {
     const users = await userService.getAllUsers();
@@ -218,6 +232,46 @@ const userController = {
     }
   },
 
+  updateUser: async (req, res) => {
+    try {
+      const { name, password, updates } = req.body;
+
+      // ตรวจสอบ token และ username ให้ตรงกัน
+      if (!req.user || req.user.username !== name) {
+        return res.status(403).json({
+          message: "You are not authorized to update this profile",
+        });
+      }
+
+      const user = await userService.getUserByUsername(name);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Incorrect password" });
+      }
+
+      const updatedUser = await userService.updateUserProfile(user, updates);
+
+      return res.status(200).json({
+        message: "Profile updated successfully",
+        updatedProfile: {
+          name: updatedUser.name,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          address: updatedUser.address,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
   deleteUser: async (req, res) => {
     try {
       const { name, password, confirmMessage } = req.body;
@@ -306,5 +360,6 @@ export {
   userRegistrationSchema,
   changePasswordSchema,
   deleteUserSchema,
+  updateUserSchema,
 };
 export default userController;

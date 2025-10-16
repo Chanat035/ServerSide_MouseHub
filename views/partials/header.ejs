@@ -319,10 +319,6 @@
     } else if (path.startsWith("/about")) {
       document.querySelector('.nav-link[href="/about"]')?.classList.add("active");
     } else if (path.startsWith("/order")) {
-      // ไม่มีเมนู order บน header แต่ถ้ามี dropdown user ก็สามารถ mark ได้
-      document.querySelector('.dropdown-item[href="/order"]')?.classList.add("active");
-    } else if (path.startsWith("/settings")) {
-      document.querySelector('.dropdown-item[href="/settings"]')?.classList.add("active");
     }
   });
 </script>

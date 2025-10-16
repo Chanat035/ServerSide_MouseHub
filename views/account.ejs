@@ -186,6 +186,8 @@
     <% if (show === 'detail') { %>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
+        const container = document.getElementById("accountDetail");
+
         try {
           const res = await fetch("/api/profile", {
             method: "GET",
@@ -194,7 +196,6 @@
           });
 
           const data = await res.json();
-          const container = document.getElementById("accountDetail");
 
           if (!res.ok) {
             container.innerHTML = `<p class="text-danger text-center">${
@@ -203,19 +204,83 @@
             return;
           }
 
+          // ✅ แสดงฟอร์มสำหรับแก้ไขข้อมูล
           container.innerHTML = `
-            <div class="mb-3"><strong>Username:</strong> ${data.username}</div>
-            <div class="mb-3"><strong>Email:</strong> ${data.email}</div>
-            <div class="mb-3"><strong>Phone:</strong> ${data.phone}</div>
-            <div class="mb-3"><strong>Address:</strong> ${data.address}</div>
-            <div class="mb-3"><strong>Balance:</strong> ${
+        <form id="updateUserForm">
+          <div class="mb-3">
+            <label>Username</label>
+            <input type="text" name="name" class="form-control" value="${
+              data.username
+            }" readonly />
+          </div>
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" value="${
+              data.email
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" value="${
+              data.phone
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Address</label>
+            <input type="text" name="address" class="form-control" value="${
+              data.address
+            }" required />
+          </div>
+          <div class="mb-3">
+            <label>Balance</label>
+            <input type="text" class="form-control" value="${
               data.balance ?? 0
-            } ฿</div>
-          `;
+            } ฿" disabled />
+          </div>
+          <div class="mb-3">
+            <label>Enter Password to Confirm</label>
+            <input type="password" name="password" class="form-control" placeholder="ใส่รหัสผ่านเพื่อยืนยัน" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100 mt-3">Save Changes</button>
+        </form>
+      `;
+
+          // ✅ ฟังก์ชันอัปเดตข้อมูล
+          const form = document.getElementById("updateUserForm");
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const password = formData.get("password");
+            const name = formData.get("name");
+            const updates = {
+              email: formData.get("email"),
+              phone: formData.get("phone"),
+              address: formData.get("address"),
+            };
+
+            const payload = { name, password, updates };
+
+            try {
+              const res = await fetch("/api/updateUser", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                credentials: "include",
+              });
+
+              const result = await res.json();
+              if (res.ok) {
+                alert("✅ " + result.message);
+              } else {
+                alert("❌ " + (result.message || "Update failed"));
+              }
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+          });
         } catch (err) {
-          document.getElementById(
-            "accountDetail"
-          ).innerHTML = `<p class="text-danger text-center">Error: ${err.message}</p>`;
+          container.innerHTML = `<p class="text-danger text-center">Error: ${err.message}</p>`;
         }
       });
     </script>

@@ -38,19 +38,6 @@ const useWebRoute = (router) => {
     });
   });
 
-  router.get("/search", async (req, res) => {
-    try {
-      const { name } = req.query;
-      if (!name || name.trim() === "") return res.json({ products: [] });
-
-      const products = await productService.getProductByName(name);
-      res.json({ products });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   router.get("/order", authMiddleware(undefined, true), async (req, res) => {
     try {
       const userId = req.user.id;

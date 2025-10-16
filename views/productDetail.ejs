@@ -59,82 +59,83 @@
 <body>
     <%- include('partials/header') %>
 
-        <div class="product-detail mt-4">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <img id="productImg" src="" alt="Product Image">
-                </div>
-                <div class="col-md-6">
-                    <h2 id="productName"></h2>
-                    <p class="price" id="productPrice"></p>
-                    <p><strong>Brand:</strong> <span id="productBrand"></span></p>
-                    <p><strong>Category:</strong> <span id="productCategory"></span></p>
-                    <p id="productDesc"></p>
-                    <div class="d-flex gap-3 mt-3">
-                        <input type="number" id="productQty" value="1" min="1" style="width: 80px;"
-                            class="form-control">
-                        <button class="add-to-cart-btn" id="addToCartBtn"><i class="bi bi-cart"></i> Add to
-                            Cart</button>
-                    </div>
+    <div class="product-detail mt-4">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <img id="productImg" src="" alt="Product Image">
+            </div>
+            <div class="col-md-6">
+                <h2 id="productName"></h2>
+                <p class="price" id="productPrice"></p>
+                <p><strong>Brand:</strong> <span id="productBrand"></span></p>
+                <p><strong>Category:</strong> <span id="productCategory"></span></p>
+                <p id="productDesc"></p>
+                <div class="d-flex gap-3 mt-3">
+                    <input type="number" id="productQty" value="1" min="1" style="width: 80px;"
+                        class="form-control">
+                    <button class="add-to-cart-btn" id="addToCartBtn"><i class="bi bi-cart"></i> Add to
+                        Cart</button>
                 </div>
             </div>
         </div>
-
-        <script>
-            const productId = "<%= productId %>";
-
-            if (productId) {
-                fetch(`/api/detail?id=${productId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        document.getElementById('productName').textContent = data.productName;
-                        document.getElementById('productPrice').textContent = data.price + " ฿";
-                        document.getElementById('productBrand').textContent = data.brand;
-                        document.getElementById('productCategory').textContent = data.category;
-                        document.getElementById('productDesc').textContent = data.description;
-                        document.getElementById('productImg').src = data.imgUrl || 'https://www.bootdey.com/image/250x220/FFB6C1/000000';
-                    })
-                    .catch(err => console.error(err));
-            }
-
-            async function addToCart(productId, quantity = 1) {
-                try {
-                    const res = await fetch("/api/addToCart", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        credentials: "include", // ให้ cookie ถูกส่งไปด้วย
-                        body: JSON.stringify({ productId, quantity })
-                    });
-
-                    const result = await res.json();
-
-                    if (res.ok) {
-                        alert("✅ เพิ่มสินค้าลงตะกร้าแล้ว!");
-                    } else if (res.status === 401) {
-                        alert("⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในตะกร้า");
-                    } else {
-                        alert(`❌ เพิ่มสินค้าไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}`);
-                    }
-                } catch (err) {
-                    console.error("Error adding to cart:", err);
-                    alert("❌ ไม่สามารถเพิ่มสินค้าได้ กรุณาลองใหม่");
-                }
-            }
-
-
-            document.getElementById("addToCartBtn").addEventListener("click", () => {
-                const quantity = parseInt(document.getElementById("productQty").value) || 1;
-                addToCart("<%= productId %>", quantity);
-            });
-
-
-        </script>
+    </div>
 
 
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const productId = "<%= productId %>";
+
+// โหลดรายละเอียดสินค้า
+if (productId) {
+    fetch(`/api/detail?id=${productId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('productName').textContent = data.productName;
+            document.getElementById('productPrice').textContent = data.price + " ฿";
+            document.getElementById('productBrand').textContent = data.brand;
+            document.getElementById('productCategory').textContent = data.category;
+            document.getElementById('productDesc').textContent = data.description;
+            document.getElementById('productImg').src = data.imgUrl || 'https://www.bootdey.com/image/250x220/FFB6C1/000000';
+        })
+        .catch(err => console.error(err));
+}
+
+// Add to Cart
+async function addToCart(productId, quantity = 1) {
+    try {
+        const res = await fetch("/api/addToCart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ productId, quantity })
+        });
+        const result = await res.json();
+        if (res.ok) {
+            alert("✅ เพิ่มสินค้าลงตะกร้าแล้ว!");
+        } else if (res.status === 401) {
+            alert("⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในตะกร้า");
+        } else {
+            alert(`❌ เพิ่มสินค้าไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}`);
+        }
+    } catch (err) {
+        console.error("Error adding to cart:", err);
+        alert("❌ ไม่สามารถเพิ่มสินค้าได้ กรุณาลองใหม่");
+    }
+}
+
+document.getElementById("addToCartBtn").addEventListener("click", () => {
+    const quantity = parseInt(document.getElementById("productQty").value) || 1;
+    addToCart(productId, quantity);
+});
+
+// ใช้ event delegation สำหรับ dropdown ทุกหน้า
+document.body.addEventListener("click", e => {
+    const item = e.target.closest(".dropdown-item[data-category]");
+    if (!item) return;
+    e.preventDefault();
+    const category = item.dataset.category || "";
+    window.location.href = `/products?category=${encodeURIComponent(category)}`;
+});
+</script>
 </body>
-
 </html>
